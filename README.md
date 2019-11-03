@@ -27,4 +27,5 @@ int main(int argc, char *argv[])
 
 ### Examples folder content
 
+* Component preview: [bppgrid_preview.gif](examples/bppgrid_preview.gif)
 * **simple**: very simple table
