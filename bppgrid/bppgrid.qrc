@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>CompGrid.qml</file>
+        <file>qmldir</file>
+        <file>assets/sort-down.svg</file>
+        <file>assets/sort-up.svg</file>
+        <file>assets/sort-up-and-down.svg</file>
+    </qresource>
+</RCC>
