@@ -4,7 +4,7 @@ Item {
     enum CellView {
         SimpleText = 0,
         CommandButton,
-        NumberText
+        ProgressView
     }
 
     enum Commands {

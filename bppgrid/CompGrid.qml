@@ -17,6 +17,9 @@ Item {
     property color headingsSortColor: "#000099"
     property color headingsNoSortColor: "#888888"
 
+    property string dateFormat: "dd/MM/yyyy"
+    property string dateTimeFormat: "dd/MM/yyyy HH:mm:ss"
+
     property var columns: null;
     property var cellDelegate: null
     property int selectedRow: -1
@@ -62,9 +65,9 @@ Item {
         if( dataType === BppTableModel.Dbl )
             return display.toFixed(decimals);
         if( dataType === BppTableModel.Date )
-            return Qt.formatDate(display, "dd/MM/yyyy");
+            return Qt.formatDate(display, dateFormat);
         if( dataType === BppTableModel.DateTime )
-            return Qt.formatDateTime(display, "dd/MM/yyyy HH:mm:ss");
+            return Qt.formatDateTime(display, dateTimeFormat);
 
         return display;
     }

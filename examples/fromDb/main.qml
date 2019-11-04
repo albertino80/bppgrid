@@ -27,7 +27,7 @@ Window {
                 text: "fillDb"
                 onPressed: {
                     bGrid.fillFromQuery( workDb,
-                                        "select col1,col6,col2,col3,col4,col8,col9 from table1 where col1>=? and col1<?",
+                                        "select col1,col6,col2,col3,col4,round( (col1 / 200.0) * 10 ) * 10 ,col8,col9 from table1 where col1>=? and col1<?",
                                         [0, 150]
                     );
                 }
@@ -50,6 +50,7 @@ Window {
             Layout.fillHeight: true
 
             dataHeight: 40
+            dateFormat: "MMM yyyy"
 
             Component {
                 id: cellDelegate
@@ -68,6 +69,15 @@ Window {
                     ButtonAction {
                         visible: view === Enums.CellView.CommandButton
                         commandId: command
+                    }
+
+                    ProgressBar {
+                        visible: view === Enums.CellView.ProgressView
+                        anchors.centerIn: parent
+                        width: 80
+                        from: 0
+                        to: 100
+                        value: dataType === BppTableModel.Int ? display : 0
                     }
 
                     CellSeparator{
@@ -94,6 +104,7 @@ Window {
                 { width: 40, title: "", sort: 4, view: Enums.CellView.CommandButton, command: Enums.Commands.DoCmd1 },
                 { width: 40, title: "", sort: 4, view: Enums.CellView.CommandButton, command: Enums.Commands.DoCmd2 },
                 { minWidth: 140, title: "Name", role: "name" },
+                { title: "Progress", dataType: BppTableModel.Int , view: Enums.CellView.ProgressView },
                 { minWidth: 120, title: "Date", dataType: BppTableModel.Date, role: "dt" },
                 { width: 170, title: "DateTime", dataType: BppTableModel.DateTime, role: "dtt" }
              ]
