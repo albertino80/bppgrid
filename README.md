@@ -3,6 +3,8 @@ QtQuick 2 Table component, modeled on TableView QML Type
 
 Tested on Windows, Android 6+, may work on other plaftorms
 
+Developed with Qt 5.13
+
 ### How to start a new project
 
 * in (your) **project.pro** include pri:
@@ -90,9 +92,13 @@ Window {
 
 ### Examples folder content
 
+* Component preview: [bppgrid_preview.gif](examples/bppgrid_preview.gif)
 * **simple**: very simple table, data loaded from Json
 * **simple_array**: very simple table, data loaded from Js Array of records
 * **simple_buttons**: 
   * auto size column
   * clickable cell
   * custom cell content (a ProgressBar)
+
+### Features
+TODO: write list
