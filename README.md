@@ -9,7 +9,7 @@ Developed with Qt 5.13
 
 ### How to start a new project
 
-* in (your) **project.pro** include pri:
+* in your project ** *.pro** include BppTable.pri:
 ```include($$PWD/bppgrid/BppTable.pri)```
 * in **main.cpp** call
   * bpp::TableModel::registerQml()
@@ -114,13 +114,19 @@ Window {
   * clickable cell
   * custom cell content (a ProgressBar)
 * **fromDb**:
-  * ```MyDatabase```
+  * ```MyDatabase``` is a SQLite example backend
     * is a simple Class derived from ```bpp::TableDatabase```
-    * ```bpp::TableDatabase::getDb()``` must provide a QSqlDatabase to internal data model, to fetch data
-  * example SQLite Db is created in ```QStandardPaths::AppLocalDataLocation```
+    * override ```bpp::TableDatabase::getDb()```: returns a QSqlDatabase used internally to fetch SQL data
+  * in this example SQLite Db is created in ```QStandardPaths::AppLocalDataLocation```
   * read data from a Db
   * Date/DateTime column
   * change column text
 
 ### Features
 TODO: write list
+
+### Todo
+- [ ] Parametrize project for avoid ```QT += sql``` if not needed
+- [ ] Test other database drivers
+- [ ] Add linked component to filter data
+- [ ] Column reordering (Study a mobile friendly interface)
