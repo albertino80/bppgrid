@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>assets/font-awesome-qml/FontAwesome.qml</file>
+        <file>assets/font-awesome-qml/fontawesome-webfont.ttf</file>
+        <file>assets/font-awesome-qml/Loader.qml</file>
+        <file>assets/font-awesome-qml/Variables.qml</file>
+        <file>Enums.qml</file>
+        <file>ButtonAction.qml</file>
+    </qresource>
+</RCC>

@@ -99,6 +99,14 @@ Window {
   * auto size column
   * clickable cell
   * custom cell content (a ProgressBar)
+* **fromDb**:
+  * ```MyDatabase```
+    * is a simple Class derived from ```bpp::TableDatabase```
+    * ```bpp::TableDatabase::getDb()``` must provide a QSqlDatabase to internal data model, to fetch data
+  * example SQLite Db is created in ```QStandardPaths::AppLocalDataLocation```
+  * read data from a Db
+  * Date/DateTime column
+  * change column text
 
 ### Features
 TODO: write list
