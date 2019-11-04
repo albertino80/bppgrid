@@ -9,7 +9,7 @@ Developed with Qt 5.13
 
 ### How to start a new project
 
-* in your project ** *.pro** include BppTable.pri:
+* in your project **.pro** include BppTable.pri:
 ```include($$PWD/bppgrid/BppTable.pri)```
 * in **main.cpp** call
   * bpp::TableModel::registerQml()
