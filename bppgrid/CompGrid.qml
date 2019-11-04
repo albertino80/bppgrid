@@ -25,6 +25,10 @@ Item {
         gridDataModel.setHighlightRow(row);
     }
 
+    function getCellBackground(row) {
+        return row % 2 == 0 ? dataBkOdd : dataBkEven;
+    }
+
     function fillFromArray(theArr){
         gridDataModel.beginReset();
         for(var i = 0; i < theArr.length; i++) {

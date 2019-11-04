@@ -8,13 +8,6 @@ Window {
     height: 480
     title: qsTr("Hello World")
 
-    property var fruitList: [
-        {pkid: 1, name: "Apple", cost: 2.45},
-        {pkid: 2, name: "Orange", cost: 3.45},
-        {pkid: 3, name: "Banana", cost: 1.459},
-        {pkid: 4, name: "Strawberry", cost: 1.1467}
-    ];
-
     CompGrid {
         id: bGrid
         anchors.fill: parent
@@ -47,13 +40,18 @@ Window {
         cellDelegate: cellItem
 
         columns: [
-            { role: "pkid", title: "ID", dataType: BppTableModel.Int },
-            { role: "name", title: "Name" },
-            { role: "cost", title: "Cost", dataType: BppTableModel.Dbl }
+            { title: "ID", dataType: BppTableModel.Int },
+            { title: "Name" },
+            { title: "Cost", dataType: BppTableModel.Dbl }
          ]
     }
 
     Component.onCompleted: {
-        bGrid.fillFromJson(fruitList);
+        bGrid.fillFromArray([
+            [1, "Apple", 2.45],
+            [2, "Orange", 3.45],
+            [3, "Banana", 1.459],
+            [4, "Strawberry", 1.1467]
+        ]);
     }
 }

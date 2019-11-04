@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>Enums.qml</file>
+    </qresource>
+</RCC>

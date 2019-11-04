@@ -5,5 +5,9 @@
         <file>assets/sort-down.svg</file>
         <file>assets/sort-up.svg</file>
         <file>assets/sort-up-and-down.svg</file>
+        <file>CellClicker.qml</file>
+        <file>CellSeparator.qml</file>
+        <file>CellText.qml</file>
+        <file>CellButton.qml</file>
     </qresource>
 </RCC>
