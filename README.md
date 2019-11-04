@@ -5,6 +5,8 @@ Tested on Windows, Android 6+, may work on other plaftorms
 
 Developed with Qt 5.13
 
+![Image of bppgrid](examples/bppgrid.png)
+
 ### How to start a new project
 
 * in (your) **project.pro** include pri:
