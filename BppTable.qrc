@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>BppTable/assets/sort-down.svg</file>
+        <file>BppTable/assets/sort-up.svg</file>
+        <file>BppTable/assets/sort-up-and-down.svg</file>
+        <file>BppTable/CellButton.qml</file>
+        <file>BppTable/CellClicker.qml</file>
+        <file>BppTable/CellSeparator.qml</file>
+        <file>BppTable/CellText.qml</file>
+        <file>BppTable/CompGrid.qml</file>
+        <file>BppTable/qmldir</file>
+    </qresource>
+</RCC>

@@ -3,6 +3,7 @@ import QtQuick.Window 2.13
 import QtQuick.Layouts 1.12
 import QtQuick.Controls 2.13
 import BppTableModel 0.1
+import BppTable 0.1
 
 import "assets/font-awesome-qml"
 

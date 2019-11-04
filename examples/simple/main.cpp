@@ -11,6 +11,7 @@ int main(int argc, char *argv[])
     bpp::TableModel::registerQml();
 
     QQmlApplicationEngine engine;
+	engine.addImportPath("qrc:/");
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {

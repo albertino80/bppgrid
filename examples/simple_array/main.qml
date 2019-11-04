@@ -1,6 +1,7 @@
 import QtQuick 2.13
 import QtQuick.Window 2.13
 import BppTableModel 0.1
+import BppTable 0.1
 
 Window {
     visible: true

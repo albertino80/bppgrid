@@ -139,10 +139,10 @@ Item {
                             anchors.rightMargin: 5
                             visible: sortIndicator !== 4
 
-                            source: sortIndicator === 0 ? "qrc:/assets/sort-up-and-down.svg" :
+                            source: sortIndicator === 0 ? "qrc:/BppTable/assets/sort-up-and-down.svg" :
                                     (
-                                        sortIndicator === 1 ? "qrc:/assets/sort-up.svg" :
-                                                              "qrc:/assets/sort-down.svg"
+                                        sortIndicator === 1 ? "qrc:/BppTable/assets/sort-up.svg" :
+                                                              "qrc:/BppTable/assets/sort-down.svg"
                                     )
                             width: 10; height: 10
                         }

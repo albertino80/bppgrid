@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
+	engine.addImportPath("qrc:/");
     engine.rootContext()->setContextProperty("workDb", &theDb);
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));

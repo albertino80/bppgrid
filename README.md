@@ -10,8 +10,11 @@ Developed with Qt 5.13
 ### How to start a new project
 
 * in (your) **project.pro** include pri:
-```include($$PWD/../../bppgrid/bppgrid.pri)```
-* in **main.cpp** register qml types:
+```include($$PWD/bppgrid/BppTable.pri)```
+* in **main.cpp** call
+  * bpp::TableModel::registerQml()
+  * engine.addImportPath("qrc:/")
+
 ```
 #include <bpptablemodel.h>
 
@@ -23,10 +26,18 @@ int main(int argc, char *argv[])
 ...
 
     bpp::TableModel::registerQml();
+	engine.addImportPath("qrc:/");
 
 ...
 }
 ```
+
+* in qml file add imports
+```
+import BppTableModel 0.1
+import BppTable 0.1
+```
+
 * Use it!
 
 ### Example QML
@@ -34,6 +45,7 @@ int main(int argc, char *argv[])
 import QtQuick 2.13
 import QtQuick.Window 2.13
 import BppTableModel 0.1
+import BppTable 0.1
 
 Window {
     visible: true
