@@ -100,14 +100,14 @@ Window {
             cellDelegate: cellDelegate
 
             columns: [
-                { width: 50, title: "ID", dataType: BppTableModel.Int, role: "pkid" },
-                { title: "Cost", dataType: BppTableModel.Dbl, role: "cost" },
+                { width: 50, title: "ID", dataType: BppTableModel.Int },
+                { title: "Cost", dataType: BppTableModel.Dbl },
                 { width: 40, title: "", sort: 4, view: Enums.CellView.CommandButton, command: Enums.Commands.DoCmd1 },
                 { width: 40, title: "", sort: 4, view: Enums.CellView.CommandButton, command: Enums.Commands.DoCmd2 },
-                { minWidth: 140, title: "Name", role: "name" },
+                { minWidth: 140, title: "Name" },
                 { title: "Progress", dataType: BppTableModel.Int , view: Enums.CellView.ProgressView },
-                { minWidth: 120, title: "Date", dataType: BppTableModel.Date, role: "dt" },
-                { width: 170, title: "DateTime", dataType: BppTableModel.DateTime, role: "dtt" }
+                { minWidth: 120, title: "Date", dataType: BppTableModel.Date },
+                { width: 170, title: "DateTime", dataType: BppTableModel.DateTime }
              ]
         }
     }
