@@ -8,10 +8,11 @@ MouseArea {
     property int viewCommand: -1
     property int commandId: -1
     property int viewId: -2
+    property bool linkEnabled: true
 
     signal doCommand(int commandId);
 
-    cursorShape: viewId === viewCommand ? Qt.PointingHandCursor : Qt.ArrowCursor
+    cursorShape: (linkEnabled && viewId === viewCommand) ? Qt.PointingHandCursor : Qt.ArrowCursor
 
     anchors.fill: parent
     onClicked: {

@@ -260,9 +260,9 @@ Item {
     }
 
     function resizeColumns(theWidth) {
-        if(!columns) return;
-        if(columns.length === 0) return;
-        if(theWidth <= 0) return;
+        if(!columns) return false;
+        if(columns.length === 0) return false;
+        if(theWidth <= 0) return false;
 
         var minWidth = 0;
         var toResize = new Set();
@@ -275,7 +275,7 @@ Item {
             }
         }
 
-        if(toResize.size === 0) return;
+        if(toResize.size === 0) return false;
 
         var usedWidth = 0;
         for(i=0; i<columns.length; i++){
@@ -304,6 +304,7 @@ Item {
         }
 
         columns = newCols;
+        return true;
     }
 
     Connections {
