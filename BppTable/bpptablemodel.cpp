@@ -40,19 +40,22 @@ namespace bpp {
                     whatRow = dataIndex[whatRow];
 
                 const QVariant& colVal = dataVal[whatRow][index.column()];
-                if(colVal.isNull())
-                    return QVariant(QVariant::Int);
                 switch (typeColumns[ index.column() ]) {
                 case ColumnType::Str:
-                    return colVal.toString();
+                    if(colVal.isNull()) return QVariant(QVariant::String);
+                    else                return colVal.toString();
                 case ColumnType::Dbl:
-                    return colVal.toDouble();
+                    if(colVal.isNull()) return QVariant(QVariant::Double);
+                    else                return colVal.toDouble();
                 case ColumnType::Int:
-                    return colVal.toInt();
+                    if(colVal.isNull()) return QVariant(QVariant::Int);
+                    else                return colVal.toInt();
                 case ColumnType::Date:
-                    return colVal.toDate();
+                    if(colVal.isNull()) return QVariant(QVariant::Date);
+                    else                return colVal.toDate();
                 case ColumnType::DateTime:
-                    return colVal.toDateTime();
+                    if(colVal.isNull()) return QVariant(QVariant::DateTime);
+                    else                return colVal.toDateTime();
                 }
                 return colVal.toString();
             }
