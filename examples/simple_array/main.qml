@@ -40,10 +40,10 @@ Window {
 
         cellDelegate: cellItem
 
-        columns: [
-            { title: "ID", dataType: BppTableModel.Int },
-            { title: "Name" },
-            { title: "Cost", dataType: BppTableModel.Dbl }
+        fromArray: [
+            { title: "ID", dataType: BTColumn.Int },
+            { title: "Name", minWidth: 100 },
+            { title: "Cost", dataType: BTColumn.Dbl }
          ]
     }
 

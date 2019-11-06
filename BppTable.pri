@@ -19,13 +19,13 @@ QML_IMPORT_PATH = $$PWD
 QML_DESIGNER_IMPORT_PATH = $$PWD
 
 SOURCES += \
+	$$PWD/BppTable/bpptablecolumn.cpp \
 	$$PWD/BppTable/bpptabledatabase.cpp \
-	$$PWD/BppTable/bpptableheading.cpp \
 	$$PWD/BppTable/bpptablemodel.cpp
 
 HEADERS += \
+	$$PWD/BppTable/bpptablecolumn.h \
 	$$PWD/BppTable/bpptabledatabase.h \
-	$$PWD/BppTable/bpptableheading.h \
 	$$PWD/BppTable/bpptablemodel.h
 
 INCLUDEPATH += $$PWD/BppTable

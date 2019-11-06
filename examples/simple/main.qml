@@ -47,10 +47,10 @@ Window {
 
         cellDelegate: cellItem
 
-        columns: [
-            { role: "pkid", title: "ID", dataType: BppTableModel.Int },
-            { role: "name", title: "Name" },
-            { role: "cost", title: "Cost", dataType: BppTableModel.Dbl }
+        fromArray: [
+            { role: "pkid", title: "ID", dataType: BTColumn.Int },
+            { role: "name", title: "Name", minWidth: 100 },
+            { role: "cost", title: "Cost", dataType: BTColumn.Dbl }
          ]
     }
 

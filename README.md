@@ -92,9 +92,9 @@ Window {
         cellDelegate: cellItem
 
         columns: [
-            { role: "pkid", title: "ID", dataType: BppTableModel.Int },
-            { role: "name", title: "Name" },
-            { role: "cost", title: "Cost", dataType: BppTableModel.Dbl }
+            { role: "pkid", title: "ID", dataType: BTColumn.Int },
+            { role: "name", title: "Name", minWidth: 100 },
+            { role: "cost", title: "Cost", dataType: BTColumn.Dbl }
          ]
     }
 
@@ -118,9 +118,9 @@ Window {
     * is a simple Class derived from ```bpp::TableDatabase```
     * override ```bpp::TableDatabase::getDb()```: returns a QSqlDatabase used internally to fetch SQL data
   * in this example SQLite Db is created in ```QStandardPaths::AppLocalDataLocation```
-  * read data from a Db
-  * Date/DateTime column
-  * change column text
+  * fill table from a Db with SQL
+  * example Date/DateTime column
+  * example of column edit (change column text and visibility)
 
 ### Features
 TODO: write list
@@ -128,5 +128,5 @@ TODO: write list
 ### Todo
 - [ ] Parametrize project for avoid ```QT += sql``` if not needed
 - [ ] Test other database drivers
-- [ ] Add linked component to filter data
+- [ ] Add a component to filter data
 - [ ] Column reordering (Study a mobile friendly interface)

@@ -4,33 +4,32 @@
 #include <QObject>
 #include <QVariantList>
 #include <QVariantMap>
+#include "bpptablecolumn.h"
 
 namespace bpp {
 
     class TableHeading : public QObject
     {
         Q_OBJECT
-        Q_PROPERTY(QVariantList columns READ getColumns WRITE setColumns NOTIFY columnsChanged)
     public:
         explicit TableHeading(QObject *parent = nullptr);
+        virtual ~TableHeading();
 
-        Q_INVOKABLE const QVariantList getColumns() const;
-        Q_INVOKABLE void setColumns(const QVariantList& newColumns);
-        Q_INVOKABLE void clickedOnColumn(int index);
-
-        Q_INVOKABLE const QVector<int> getSortColumns() const;
-        Q_INVOKABLE const QVector<int> getRoleColumns(const QString& roleName) const;
-        Q_INVOKABLE const QVector<QString> getRoleColumnsStr(const QString& roleName) const;
+        Q_INVOKABLE int getColWidth(int columnId) const;
+        Q_INVOKABLE void clearColumnsDef();
+        Q_INVOKABLE int addColumnDef();
+        Q_INVOKABLE void setColumnDef(int columnId, bool withDefaults, const QVariantMap& colDef);
+        Q_INVOKABLE int sizeColumnsDef() const;
+        const TableColumn& getColumnDef(int columnId) const;
 
         static void registerQml();
 
     signals:
-        void columnsChanged();
 
     public slots:
 
     private:
-        QVariantList theColumns;
+        QVector<TableColumn*> columnsDef;
     };
 
 }

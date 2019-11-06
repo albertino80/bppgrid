@@ -46,10 +46,10 @@ Window {
                 ProgressBar {
                     visible: view === Enums.CellView.ProgressView
                     anchors.centerIn: parent
-                    width: 80
+                    width: parent.width - 10
                     from: 0
                     to: 100
-                    value: dataType === BppTableModel.Int ? display : 0
+                    value: dataType === BTColumn.Int ? display : 0
                 }
 
                 CellSeparator{
@@ -70,11 +70,11 @@ Window {
 
         cellDelegate: cellItem
 
-        columns: [
-            { role: "pkid", title: "ID", dataType: BppTableModel.Int },
+        fromArray: [
+            { role: "pkid", title: "ID", dataType: BTColumn.Int },
             { role: "name", title: "Name", minWidth: 140, view: Enums.CellView.CommandButton, command: Enums.Commands.DoCmd1 },
-            { role: "cost", title: "Cost", dataType: BppTableModel.Dbl },
-            { role: "prog", title: "Progress", width: 100, dataType: BppTableModel.Int, view: Enums.CellView.ProgressView },
+            { role: "cost", title: "Cost", dataType: BTColumn.Dbl },
+            { role: "prog", title: "Progress", minWidth: 100, dataType: BTColumn.Int, view: Enums.CellView.ProgressView },
          ]
     }
 

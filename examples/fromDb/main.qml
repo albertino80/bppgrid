@@ -9,7 +9,7 @@ import "assets/font-awesome-qml"
 
 Window {
     visible: true
-    width: 640
+    width: 840
     height: 480
     title: qsTr("Hello World")
 
@@ -31,18 +31,49 @@ Window {
                                         "select col1,col6,col2,col3,col4,round( (col1 / 200.0) * 10 ) * 10 ,col8,col9 from table1 where col1>=? and col1<?",
                                         [0, 150]
                     );
+
+                    txtInfo.text = 'Table has: ' + bGrid.rows() + " rows"
                 }
             }
 
             Button {
-                text: "changeHead"
+                text: "Hide Cost"
                 onPressed: {
-                    var newCols = bGrid.columns;
-                    newCols[1].title = "Price";
-                    newCols[1].width = 180;
-                    bGrid.columns = newCols;
+                    bGrid.columns.get(1).visible = !bGrid.columns.get(1).visible
                 }
             }
+
+            Button {
+                text: "Cost <-> Price"
+                onPressed: {
+                    if( bGrid.columns.get(1).title !== "Price" ) {
+                        bGrid.columns.get(1).title = "Price"
+                        bGrid.columns.get(1).width = 80
+                    }
+                    else {
+                        bGrid.columns.get(1).title = "Cost"
+                        bGrid.columns.get(1).width = 100
+                    }
+                }
+            }
+
+            Text {
+                id: txtInfo
+                font.pointSize: 11
+                text: ""
+            }
+        }
+
+        ListModel{
+            id: modColumns
+            ListElement { width: 50; title: "ID"; dataType: BTColumn.Int }
+            ListElement { title: "Cost"; dataType: BTColumn.Dbl }
+            ListElement { width: 40; title: ""; sort: 4; view: Enums.CellView.CommandButton; command: Enums.Commands.DoCmd1 }
+            ListElement { width: 40; title: ""; sort: 4; view: Enums.CellView.CommandButton; command: Enums.Commands.DoCmd2 }
+            ListElement { minWidth: 140; title: "Name" }
+            ListElement { title: "Progress"; dataType: BTColumn.Int ; view: Enums.CellView.ProgressView }
+            ListElement { minWidth: 120; title: "Date"; dataType: BTColumn.Date }
+            ListElement { width: 170; title: "DateTime"; dataType: BTColumn.DateTime }
         }
 
         CompGrid {
@@ -60,6 +91,7 @@ Window {
                     id: cellContainer
                     implicitHeight: bGrid.dataHeight
                     color: row % 2 == 0 ? bGrid.dataBkOdd : bGrid.dataBkEven
+                    visible: model.visible
 
                     CellText {
                         visible: view === Enums.CellView.SimpleText
@@ -78,7 +110,7 @@ Window {
                         width: 80
                         from: 0
                         to: 100
-                        value: dataType === BppTableModel.Int ? display : 0
+                        value: dataType === BTColumn.Int ? display : 0
                     }
 
                     CellSeparator{
@@ -91,7 +123,7 @@ Window {
                         viewId: view
                         commandId: command
                         onDoCommand: {
-                            console.log('Clicked:', commandId, display)
+                            txtInfo.text = 'Clicked: ' + commandId + ', value: ' + display + ', ID: ' + bGrid.cellValue(row,0)
                         }
                     }
                 }
@@ -99,16 +131,7 @@ Window {
 
             cellDelegate: cellDelegate
 
-            columns: [
-                { width: 50, title: "ID", dataType: BppTableModel.Int },
-                { title: "Cost", dataType: BppTableModel.Dbl },
-                { width: 40, title: "", sort: 4, view: Enums.CellView.CommandButton, command: Enums.Commands.DoCmd1 },
-                { width: 40, title: "", sort: 4, view: Enums.CellView.CommandButton, command: Enums.Commands.DoCmd2 },
-                { minWidth: 140, title: "Name" },
-                { title: "Progress", dataType: BppTableModel.Int , view: Enums.CellView.ProgressView },
-                { minWidth: 120, title: "Date", dataType: BppTableModel.Date },
-                { width: 170, title: "DateTime", dataType: BppTableModel.DateTime }
-             ]
+            fromListModel: modColumns
         }
     }
 }

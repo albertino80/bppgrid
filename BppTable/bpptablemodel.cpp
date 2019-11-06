@@ -8,8 +8,6 @@
 #include <QDate>
 #include <QDateTime>
 
-#include "bpptableheading.h"
-
 namespace bpp {
 
     TableModel::TableModel():
@@ -19,6 +17,11 @@ namespace bpp {
     {
     }
 
+    TableModel::~TableModel()
+    {
+        clearColumnsDef();
+    }
+
     int TableModel::rowCount(const QModelIndex &) const
     {
         return dataVal.size();
@@ -26,7 +29,7 @@ namespace bpp {
 
     int TableModel::columnCount(const QModelIndex &) const
     {
-        return typeColumns.size();
+        return sizeColumnsDef();
     }
 
     QVariant TableModel::data(const QModelIndex &index, int role) const
@@ -40,35 +43,37 @@ namespace bpp {
                     whatRow = dataIndex[whatRow];
 
                 const QVariant& colVal = dataVal[whatRow][index.column()];
-                switch (typeColumns[ index.column() ]) {
-                case ColumnType::Str:
+                switch ( getColumnDef( index.column() ).type) {
+                case TableColumn::Str:
                     if(colVal.isNull()) return QVariant(QVariant::String);
                     else                return colVal.toString();
-                case ColumnType::Dbl:
+                case TableColumn::Dbl:
                     if(colVal.isNull()) return QVariant(QVariant::Double);
                     else                return colVal.toDouble();
-                case ColumnType::Int:
+                case TableColumn::Int:
                     if(colVal.isNull()) return QVariant(QVariant::Int);
                     else                return colVal.toInt();
-                case ColumnType::Date:
+                case TableColumn::Date:
                     if(colVal.isNull()) return QVariant(QVariant::Date);
                     else                return colVal.toDate();
-                case ColumnType::DateTime:
+                case TableColumn::DateTime:
                     if(colVal.isNull()) return QVariant(QVariant::DateTime);
                     else                return colVal.toDateTime();
                 }
                 return colVal.toString();
             }
         case roleDataType:
-            return typeColumns[ index.column() ];
+            return getColumnDef( index.column() ).type;
         case roleView:
-            return actionColumns[ index.column() ];
+            return getColumnDef( index.column() ).view;
         case roleCommand:
-            return commandColumns[ index.column() ];
+            return getColumnDef( index.column() ).command;
         case roleHighlight:
             if(index.row() == highlightRow)
                 return true;
             return false;
+        case roleVisible:
+            return getColumnDef( index.column() ).visible;
         default:
             break;
         }
@@ -85,13 +90,13 @@ namespace bpp {
             {roleView, "view"},
             {roleCommand, "command"},
             {roleHighlight, "highlight"},
+            {roleVisible, "visible"}
         };
     }
 
     void TableModel::sortData()
     {
         if(!dataSorted) {
-
             if(sortColumns.isEmpty()) {
                 if(dataIndex.isEmpty()) {
                     //nothing to do
@@ -145,54 +150,54 @@ namespace bpp {
                     if(valB.isNull() && !valA.isNull())
                         return !orderAsc;
 
-                    switch (typeColumns[ iCol ]) {
-                    case ColumnType::Str:
+                    switch (getColumnDef( iCol ).type) {
+                    case TableColumn::Str:
                         if(valA.toString().compare(valB.toString(), Qt::CaseInsensitive) == 0)
                             continue;
                         break;
-                    case ColumnType::Dbl:
+                    case TableColumn::Dbl:
                         if( fabs(valA.toDouble() - valB.toDouble()) < double(FLT_EPSILON) )
                             continue;
                         break;
-                    case ColumnType::Int:
+                    case TableColumn::Int:
                         if( valA.toInt() == valB.toInt() )
                             continue;
                         break;
-                    case ColumnType::Date:
+                    case TableColumn::Date:
                         if( valA.toDate() == valB.toDate() )
                             continue;
                         break;
-                    case ColumnType::DateTime:
+                    case TableColumn::DateTime:
                         if( valA.toDateTime() == valB.toDateTime() )
                             continue;
                         break;
                     }
 
                     if(orderAsc){
-                        switch (typeColumns[ iCol ]) {
-                        case ColumnType::Str:
+                        switch (getColumnDef( iCol ).type) {
+                        case TableColumn::Str:
                             return valA.toString().compare(valB.toString(), Qt::CaseInsensitive) < 0;
-                        case ColumnType::Dbl:
+                        case TableColumn::Dbl:
                             return valA.toDouble() < valB.toDouble();
-                        case ColumnType::Int:
+                        case TableColumn::Int:
                             return valA.toInt() < valB.toInt();
-                        case ColumnType::Date:
+                        case TableColumn::Date:
                             return valA.toDate() < valB.toDate();
-                        case ColumnType::DateTime:
+                        case TableColumn::DateTime:
                             return valA.toDateTime() < valB.toDateTime();
                         }
                     }
                     else {
-                        switch (typeColumns[ iCol ]) {
-                        case ColumnType::Str:
+                        switch (getColumnDef( iCol ).type) {
+                        case TableColumn::Str:
                             return valA.toString().compare(valB.toString(), Qt::CaseInsensitive) > 0;
-                        case ColumnType::Dbl:
+                        case TableColumn::Dbl:
                             return valA.toDouble() > valB.toDouble();
-                        case ColumnType::Int:
+                        case TableColumn::Int:
                             return valA.toInt() > valB.toInt();
-                        case ColumnType::Date:
+                        case TableColumn::Date:
                             return valA.toDate() > valB.toDate();
-                        case ColumnType::DateTime:
+                        case TableColumn::DateTime:
                             return valA.toDateTime() > valB.toDateTime();
                         }
                     }
@@ -250,8 +255,8 @@ namespace bpp {
                 dataVal.push_back(QVector<QVariant>());
                 QVector<QVariant>& curRow = dataVal.last();
 
-                for(int iCol = 0; iCol < typeColumns.size(); iCol++) {
-                    appendDataVariant(curRow, query.value(iCol), typeColumns[iCol], DataDialect::Sqlite);
+                for(int iCol = 0; iCol < sizeColumnsDef(); iCol++) {
+                    appendDataVariant(curRow, query.value(iCol), getColumnDef( iCol ).type, DataDialect::Sqlite);
                 }
             }
 
@@ -279,11 +284,11 @@ namespace bpp {
             dataVal.push_back(QVector<QVariant>());
             QVector<QVariant>& curRow = dataVal.last();
 
-            for(int iCol = 0; iCol < typeColumns.size(); iCol++) {
-                if(!curValues.contains(roleColumns[iCol]))
-                    appendDataVariant(curRow, QVariant(QVariant::Int), typeColumns[iCol], DataDialect::JsonISO);
+            for(int iCol = 0; iCol < sizeColumnsDef(); iCol++) {
+                if(!curValues.contains(getColumnDef( iCol ).role))
+                    appendDataVariant(curRow, QVariant(QVariant::Int), getColumnDef( iCol ).type, DataDialect::JsonISO);
                 else
-                    appendDataVariant(curRow, curValues[roleColumns[iCol]], typeColumns[iCol], DataDialect::JsonISO);
+                    appendDataVariant(curRow, curValues[getColumnDef( iCol ).role], getColumnDef( iCol ).type, DataDialect::JsonISO);
             }
         }
 
@@ -294,18 +299,18 @@ namespace bpp {
     void TableModel::addRecord(const QList<QVariant>& theData)
     {
         int iCol;
-        int numColumns( typeColumns.size() );
+        int numColumns( sizeColumnsDef() );
 
         dataVal.push_back(QVector<QVariant>());
         QVector<QVariant>& curRow = dataVal.last();
         iCol=0;
         for(auto& theValue: theData){
-            appendDataVariant(curRow, theValue, typeColumns[iCol], DataDialect::JsonISO);
+            appendDataVariant(curRow, theValue, getColumnDef( iCol ).type, DataDialect::JsonISO);
             iCol++;
         }
 
         while(iCol < numColumns) {
-            appendDataVariant(curRow, QVariant(QVariant::Int), typeColumns[iCol], DataDialect::JsonISO);
+            appendDataVariant(curRow, QVariant(QVariant::Int), getColumnDef( iCol ).type, DataDialect::JsonISO);
             iCol++;
         }
     }
@@ -318,9 +323,9 @@ namespace bpp {
 
     void TableModel::registerQml()
     {
-        qmlRegisterType<bpp::TableModel>("BppTableModel", 0, 1, "BppTableModel");
-        bpp::TableHeading::registerQml();
+        qmlRegisterType<bpp::TableModel>("BppTableModel", 0, 1, "BTModel");
         bpp::TableDatabase::registerQml();
+        bpp::TableColumn::registerQml();
     }
 
     void TableModel::setDbRef(TableDatabase *value)
@@ -328,38 +333,85 @@ namespace bpp {
         dbRef = value;
     }
 
-    void TableModel::appendDataVariant(QVector<QVariant> &record, const QVariant &theValue, ColumnType columnType, DataDialect dia)
+    void TableModel::endUpdateColumns()
+    {
+        calcSortColumns();
+        updateLayout();
+    }
+
+    int TableModel::getColWidth(int columnId) const
+    {
+        if(columnId<0)
+            return 100;
+
+        if(!columnsDef[columnId]->visible)
+            return 0;
+
+        return columnsDef[columnId]->width;
+    }
+
+    void TableModel::clearColumnsDef()
+    {
+        for(auto col: columnsDef){
+            delete col;
+        }
+        columnsDef.clear();
+    }
+
+    int TableModel::addColumnDef()
+    {
+        int newCol(columnsDef.size());
+        columnsDef.push_back( new TableColumn() );
+        return newCol;
+    }
+
+    void TableModel::setColumnDef(int columnId, bool withDefaults, const QVariantMap &colDef)
+    {
+        columnsDef[columnId]->modify(colDef, withDefaults);
+    }
+
+    const TableColumn &TableModel::getColumnDef(int columnId) const
+    {
+        return *columnsDef[columnId];
+    }
+
+    int TableModel::sizeColumnsDef() const
+    {
+        return columnsDef.size();
+    }
+
+    void TableModel::appendDataVariant(QVector<QVariant> &record, const QVariant &theValue, TableColumn::ColumnType columnType, DataDialect dia)
     {
         if(theValue.isNull())
             switch(columnType){
-            case ColumnType::Str:
+            case TableColumn::Str:
                 record.push_back( QVariant(QVariant::String) );
                 break;
-            case ColumnType::Dbl:
+            case TableColumn::Dbl:
                 record.push_back( QVariant(QVariant::Double) );
                 break;
-            case ColumnType::Int:
+            case TableColumn::Int:
                 record.push_back( QVariant(QVariant::Int) );
                 break;
-            case ColumnType::Date:
+            case TableColumn::Date:
                 record.push_back( QVariant(QVariant::Date) );
                 break;
-            case ColumnType::DateTime:
+            case TableColumn::DateTime:
                 record.push_back( QVariant(QVariant::DateTime) );
                 break;
             }
         else {
             switch(columnType){
-            case ColumnType::Str:
+            case TableColumn::Str:
                 record.push_back( theValue.toString() );
                 break;
-            case ColumnType::Dbl:
+            case TableColumn::Dbl:
                 record.push_back( theValue.toDouble() );
                 break;
-            case ColumnType::Int:
+            case TableColumn::Int:
                 record.push_back( theValue.toInt() );
                 break;
-            case ColumnType::Date:
+            case TableColumn::Date:
                 if(dia == DataDialect::Sqlite)
                     record.push_back( QDate::fromString(theValue.toString(),"yyyy-MM-dd") );
                 else if(dia == DataDialect::JsonISO)
@@ -367,7 +419,7 @@ namespace bpp {
                 else
                     record.push_back( theValue.toDate() );
                 break;
-            case ColumnType::DateTime:
+            case TableColumn::DateTime:
                 if(dia == DataDialect::Sqlite)
                     record.push_back( QDateTime::fromString(theValue.toString(),"yyyy-MM-dd HH:mm:ss") );
                 else if(dia == DataDialect::JsonISO)
@@ -379,40 +431,28 @@ namespace bpp {
         }
     }
 
+    void TableModel::calcSortColumns()
+    {
+        sortColumns.clear();
+        dataSorted = false;
+
+        for(int i = 0; i < sizeColumnsDef(); i++){
+            int sortVal = getColumnDef(i).sortFlag;
+            if(sortVal == 1)
+                sortColumns.push_back(i+1);
+            if(sortVal == 2)
+                sortColumns.push_back(-(i+1));
+        }
+    }
+
     int TableModel::getHighlightRow() const
     {
         return highlightRow;
     }
 
-    void TableModel::setSortColumns(const QVector<int> &value)
+    void TableModel::dataNeedSort()
     {
-        if(sortColumns != value) {
-            sortColumns = value;
-            dataSorted = false;
-        }
-    }
-
-    void TableModel::setTypeColumns(const QVector<int> &value)
-    {
-        typeColumns.clear();
-        for(auto iType: value){
-            typeColumns.push_back( ColumnType(iType) );
-        }
-    }
-
-    void TableModel::setActionColumns(const QVector<int> &value)
-    {
-        actionColumns = value;
-    }
-
-    void TableModel::setCommandColumns(const QVector<int> &value)
-    {
-        commandColumns = value;
-    }
-
-    void TableModel::setRoleColumns(const QVector<QString> &value)
-    {
-        roleColumns = value;
+        dataSorted = false;
     }
 
     void TableModel::setHighlightRow(int rowNum)

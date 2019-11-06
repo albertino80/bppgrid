@@ -20,9 +20,21 @@ Item {
     property string dateFormat: "dd/MM/yyyy"
     property string dateTimeFormat: "dd/MM/yyyy HH:mm:ss"
 
-    property var columns: null;
     property var cellDelegate: null
     property int selectedRow: -1
+
+    property var fromListModel: null
+    property var fromArray: null
+
+    property ListModel columns: ListModel{}
+
+    function rows(){
+        return gridDataModel.rowCount();
+    }
+
+    function cellValue(row, col){
+        return gridDataModel.data( gridDataModel.index(row, col), "display" );
+    }
 
     function setSelectedRow(row) {
         gridDataModel.setHighlightRow(row);
@@ -58,30 +70,30 @@ Item {
     }
 
     function formatDisplay(display, dataType, decimals){
-        if( dataType === BppTableModel.Str )
+        if( dataType === BTColumn.Str )
             return display;
-        if( dataType === BppTableModel.Int )
+        if( dataType === BTColumn.Int )
             return display;
-        if( dataType === BppTableModel.Dbl )
+        if( dataType === BTColumn.Dbl )
             return display.toFixed(decimals);
-        if( dataType === BppTableModel.Date )
+        if( dataType === BTColumn.Date )
             return Qt.formatDate(display, dateFormat);
-        if( dataType === BppTableModel.DateTime )
+        if( dataType === BTColumn.DateTime )
             return Qt.formatDateTime(display, dateTimeFormat);
 
         return display;
     }
 
     function getAlign(dataType){
-        if( dataType === BppTableModel.Str )
+        if( dataType === BTColumn.Str )
             return Text.AlignLeft;
-        if( dataType === BppTableModel.Int )
+        if( dataType === BTColumn.Int )
             return Text.AlignRight;
-        if( dataType === BppTableModel.Dbl )
+        if( dataType === BTColumn.Dbl )
             return Text.AlignRight;
-        if( dataType === BppTableModel.Date )
+        if( dataType === BTColumn.Date )
             return Text.AlignHCenter;
-        if( dataType === BppTableModel.DateTime )
+        if( dataType === BTColumn.DateTime )
             return Text.AlignHCenter;
 
         return Text.AlignLeft;
@@ -107,14 +119,14 @@ Item {
 
                 Repeater {
                     id: colRepeater
-                    model: null
+                    model: columns //ListModel {}
                     Rectangle{
-                        Layout.minimumWidth: getColWidth(index)
+                        Layout.minimumWidth: model.width;
                         Layout.minimumHeight: headingsFlick.height
                         color: headingsBk
+                        visible: model.visible
 
-                        property int sortIndicator: getColSort(index)
-                        property string colTitle: modelData.title
+                        property int sortIndicator: sort;
 
                         Text{
                             color: headingsTextColor
@@ -128,7 +140,7 @@ Item {
                             leftPadding: 5
                             font.bold: true
                             verticalAlignment: Text.AlignVCenter
-                            text: colTitle
+                            text: title
                             elide: Qt.ElideRight
                         }
 
@@ -167,7 +179,13 @@ Item {
                             anchors.fill: parent
                             visible: sortIndicator !== 4
                             onClicked: {
-                                tableHead.clickedOnColumn(index);
+                                var newSort = columns.get(index).sort;
+                                newSort++;
+                                if(newSort > 2) newSort = 0;
+
+                                gridDataModel.dataNeedSort();
+                                columns.get(index).sort = newSort;
+                                gridDataModel.updateLayout();
                             }
                         }
                     }
@@ -188,7 +206,7 @@ Item {
             rowSpacing: 0
             clip: true
 
-            columnWidthProvider: getColWidth
+            columnWidthProvider: gridDataModel.getColWidth;
 
             model: gridDataModel
             reuseItems: true
@@ -223,88 +241,146 @@ Item {
         }
 
         onWidthChanged: {
-            resizeColumns(mainColumn.width);
+            //resizeColumns(mainColumn.width);
+            fromColumnListModelToTable(false); //resize columns
         }
     }
 
-    property var tableHead: BppTableHeading {
-        onColumnsChanged: {
-            colRepeater.model = getColumns();
-            gridDataModel.setSortColumns( getSortColumns() );
-            gridDataModel.setTypeColumns( getRoleColumns("dataType") );
-            gridDataModel.setActionColumns( getRoleColumns("view") );
-            gridDataModel.setCommandColumns( getRoleColumns("command") );
-            gridDataModel.setRoleColumns( getRoleColumnsStr("role") );
-            gridDataModel.updateLayout();
+    property var gridDataModel: BTModel {
+    }
+
+    Connections{
+        target: columns
+        onDataChanged: {
+            fromColumnListModelToTable(false);
         }
     }
 
-    property var gridDataModel: BppTableModel {}
-
-    onColumnsChanged: {
-        tableHead.setColumns(columns);
+    onFromListModelChanged: {
+        columnsFromListModel(fromListModel);
     }
 
-    function getColWidth(column) {
-        if(!colRepeater.model || column >= colRepeater.model.length)
-            return 100;
-
-        return colRepeater.model[column].width;
+    onFromArrayChanged: {
+        columnsFromArray(fromArray);
     }
 
-    function getColSort(column) {
-        if(!colRepeater.model || column >= colRepeater.model.length)
-            return 0;
+    function columnsFromListModel(aListModel){
+        columns.clear();
+        for(var i=0; i<aListModel.count; i++) {
+            var newColumn = {
+                "width": 100,
+                "minWidth": 0,
+                "title": "",
+                "sort": 0,
+                "dataType": BTColumn.Str,
+                "view": 0,
+                "command": 0,
+                "role": "col" + i,
+                "visible": true
+            };
 
-        return colRepeater.model[column].sort;
+            if(aListModel.get(i).width !== undefined)   newColumn.width = aListModel.get(i).width;
+            if(aListModel.get(i).minWidth !== undefined)   newColumn.minWidth = aListModel.get(i).minWidth;
+            if(aListModel.get(i).title !== undefined)   newColumn.title = aListModel.get(i).title;
+            if(aListModel.get(i).sort !== undefined)   newColumn.sort = aListModel.get(i).sort;
+            if(aListModel.get(i).dataType !== undefined)   newColumn.dataType = aListModel.get(i).dataType;
+            if(aListModel.get(i).view !== undefined)   newColumn.view = aListModel.get(i).view;
+            if(aListModel.get(i).command !== undefined)   newColumn.command = aListModel.get(i).command;
+            if(aListModel.get(i).role !== undefined && newColumn.role.length > 0)   newColumn.role = aListModel.get(i).role;
+            if(aListModel.get(i).visible !== undefined)   newColumn.visible = aListModel.get(i).visible;
+
+            if(newColumn.width === 0) newColumn.width = 100;
+
+            columns.append(newColumn);
+        }
     }
 
-    function resizeColumns(theWidth) {
-        if(!columns) return false;
-        if(columns.length === 0) return false;
-        if(theWidth <= 0) return false;
+    function columnsFromArray(jsArray){
+        columns.clear();
 
-        var minWidth = 0;
-        var toResize = new Set();
+        for(var i=0; i<jsArray.length; i++) {
+            var newColumn = {
+                "width": 100,
+                "minWidth": 0,
+                "title": "",
+                "sort": 0,
+                "dataType": BTColumn.Str,
+                "view": 0,
+                "command": 0,
+                "role": "col" + i,
+                "visible": true
+            };
+
+            if(jsArray[i].width !== undefined)   newColumn.width = jsArray[i].width;
+            if(jsArray[i].minWidth !== undefined)   newColumn.minWidth = jsArray[i].minWidth;
+            if(jsArray[i].title !== undefined)   newColumn.title = jsArray[i].title;
+            if(jsArray[i].sort !== undefined)   newColumn.sort = jsArray[i].sort;
+            if(jsArray[i].dataType !== undefined)   newColumn.dataType = jsArray[i].dataType;
+            if(jsArray[i].view !== undefined)   newColumn.view = jsArray[i].view;
+            if(jsArray[i].command !== undefined)   newColumn.command = jsArray[i].command;
+            if(jsArray[i].role !== undefined && newColumn.role.length > 0)   newColumn.role = jsArray[i].role;
+            if(jsArray[i].visible !== undefined)   newColumn.visible = jsArray[i].visible;
+
+            if(newColumn.width === 0) newColumn.width = 100;
+
+            columns.append(newColumn);
+        }
+    }
+
+    property bool doFireColumnsChange: true
+    function fromColumnListModelToTable(resetDefaults){
+        if(!columns) return;
+        if(!doFireColumnsChange) return;
+
         var i;
+        if(columns.count > 0 && mainColumn.width > 0){
+            var minWidth = 0;
+            var toResize = new Set();
 
-        for(i=0; i<columns.length; i++){
-            if(columns[i].minWidth) {
-                toResize.add(i);
-                minWidth += columns[i].minWidth;
+            for(i=0; i<columns.count; i++){
+                if(columns.get(i).minWidth && columns.get(i).visible) {
+                    toResize.add(i);
+                    minWidth += columns.get(i).minWidth;
+                }
+            }
+
+            if(toResize.size > 0) {
+                doFireColumnsChange = false;
+
+                var usedWidth = 0;
+                for(i=0; i<columns.count; i++){
+                    if(!toResize.has(i) && columns.get(i).visible) {
+                        usedWidth += columns.get(i).width;
+                    }
+                }
+
+                var newWidth = mainColumn.width - usedWidth;
+                if( newWidth < minWidth ) {
+                    //mantain minWidth
+                    for (var iCol1 of toResize) {
+                        if(columns.get(iCol1).width !== columns.get(iCol1).minWidth)
+                            columns.get(iCol1).width = columns.get(iCol1).minWidth;
+                    }
+                }
+                else {
+                    var factor = newWidth / minWidth;
+                    for (var iCol2 of toResize) {
+                        if(columns.get(iCol2).width !== columns.get(iCol2).minWidth * factor)
+                            columns.get(iCol2).width = columns.get(iCol2).minWidth * factor;
+                    }
+                }
+
+                doFireColumnsChange = true;
             }
         }
 
-        if(toResize.size === 0) return false;
-
-        var usedWidth = 0;
-        for(i=0; i<columns.length; i++){
-            if(!toResize.has(i)) {
-                if(columns[i].width)
-                    usedWidth += columns[i].width;
-                else
-                    usedWidth += 100;
-            }
+        gridDataModel.clearColumnsDef();
+        for(i=0; i<columns.count; i++) {
+            var newCol = gridDataModel.addColumnDef();
+            gridDataModel.setColumnDef(newCol, resetDefaults, JSON.parse(JSON.stringify(columns.get(i))) )
         }
 
-        var newCols = columns;
-
-        var newWidth = theWidth - usedWidth;
-        if( newWidth < minWidth ) {
-            //mantain min
-            for (let iCol1 of toResize) {
-                newCols[iCol1].width = columns[iCol1].minWidth;
-            }
-        }
-        else {
-            var factor = newWidth / minWidth;
-            for (let iCol2 of toResize) {
-                newCols[iCol2].width = columns[iCol2].minWidth * factor;
-            }
-        }
-
-        columns = newCols;
-        return true;
+        gridDataModel.endUpdateColumns( );
     }
 
     Connections {

@@ -4,112 +4,61 @@
 
 namespace bpp {
 
-TableHeading::TableHeading(QObject *parent) : QObject(parent)
+TableHeading::TableHeading(QObject *parent) :
+    QObject(parent)
 {
 
 }
 
-const QVariantList TableHeading::getColumns() const
+TableHeading::~TableHeading()
 {
-    return theColumns;
+    clearColumnsDef();
 }
 
-void TableHeading::setColumns(const QVariantList &newColumns)
+int TableHeading::getColWidth(int columnId) const
 {
-    theColumns.clear();
-    int iCol(0);
-    for(auto& newCol: newColumns){
-        iCol++;
-        QVariantMap aColumn = newCol.toMap();
+    if(columnId<0)
+        return 100;
 
-        QVariantMap toInsertColumn = aColumn;
-        if(!toInsertColumn.contains("width"))
-            toInsertColumn["width"] = 100;
-        if(!toInsertColumn.contains("title"))
-            toInsertColumn["title"] = QString("Col %1").arg(iCol);
-        if(!toInsertColumn.contains("sort"))
-            toInsertColumn["sort"] = 0;
-        if(!toInsertColumn.contains("dataType"))
-            toInsertColumn["dataType"] = 0;
-        if(!toInsertColumn.contains("view"))
-            toInsertColumn["view"] = 0;
-        if(!toInsertColumn.contains("command"))
-            toInsertColumn["command"] = 0;
-        if(!toInsertColumn.contains("role"))
-            toInsertColumn["role"] = QString("col_%1").arg(iCol);
+    if(!columnsDef[columnId]->visible)
+        return 0;
 
-        theColumns.append(toInsertColumn);
+    return columnsDef[columnId]->width;
+}
+
+void TableHeading::clearColumnsDef()
+{
+    for(auto col: columnsDef){
+        delete col;
     }
-
-    emit columnsChanged();
+    columnsDef.clear();
 }
 
-void TableHeading::clickedOnColumn(int index)
+int TableHeading::addColumnDef()
 {
-    if(index < theColumns.size()){
-        QVariantMap aColumn = theColumns[index].toMap();
-        int sortVal = aColumn["sort"].toInt();
-
-        sortVal++;
-        if(sortVal > 2) sortVal = 0;
-
-        aColumn["sort"] = sortVal;
-
-        theColumns[index].setValue( aColumn );
-
-        emit columnsChanged();
-    }
+    int newCol(columnsDef.size());
+    columnsDef.push_back( new TableColumn() );
+    return newCol;
 }
 
-const QVector<int> TableHeading::getSortColumns() const
+void TableHeading::setColumnDef(int columnId, bool withDefaults, const QVariantMap &colDef)
 {
-    QVector<int> sortColumns;
-
-    int iCol(1);
-    for(auto& curColumn: theColumns){
-        const QVariantMap& aColumn = curColumn.toMap();
-        int sortVal = aColumn["sort"].toInt();
-        if(sortVal == 1)
-            sortColumns.push_back(iCol);
-        if(sortVal == 2)
-            sortColumns.push_back(-iCol);
-        iCol++;
-    }
-
-    return sortColumns;
+    columnsDef[columnId]->modify(colDef, withDefaults);
 }
 
-const QVector<int> TableHeading::getRoleColumns(const QString& roleName) const
+const TableColumn &TableHeading::getColumnDef(int columnId) const
 {
-    QVector<int> typeColumns;
-
-    int iCol(0);
-    for(auto& curColumn: theColumns){
-        iCol++;
-        const QVariantMap& aColumn = curColumn.toMap();
-        typeColumns.push_back( aColumn[roleName].toInt() );
-    }
-
-    return typeColumns;
+    return *columnsDef[columnId];
 }
 
-const QVector<QString> TableHeading::getRoleColumnsStr(const QString &roleName) const
+int TableHeading::sizeColumnsDef() const
 {
-    QVector<QString> typeColumns;
-
-    int iCol(0);
-    for(auto& curColumn: theColumns){
-        iCol++;
-        const QVariantMap& aColumn = curColumn.toMap();
-        typeColumns.push_back( aColumn[roleName].toString() );
-    }
-
-    return typeColumns;
+    return columnsDef.size();
 }
 
 void TableHeading::registerQml()
 {
-    qmlRegisterType<bpp::TableHeading>("BppTableModel", 0, 1, "BppTableHeading");
+    qmlRegisterType<bpp::TableHeading>("BppTableModel", 0, 1, "BTHeading");
 }
 
 }
