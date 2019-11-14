@@ -3,7 +3,7 @@ QtQuick 2 Table component, modeled on TableView QML Type
 
 Tested on Windows, Android 6+, may work on other plaftorms
 
-Developed with Qt 5.13
+Developed with Qt 5.12.3
 
 ![Image of bppgrid](examples/bppgrid.png)
 
@@ -91,7 +91,7 @@ Window {
 
         cellDelegate: cellItem
 
-        columns: [
+        fromArray: [
             { role: "pkid", title: "ID", dataType: BTColumn.Int },
             { role: "name", title: "Name", minWidth: 100 },
             { role: "cost", title: "Cost", dataType: BTColumn.Dbl }

@@ -1,7 +1,7 @@
-import QtQuick 2.13
-import QtQuick.Window 2.13
+import QtQuick 2.12
+import QtQuick.Window 2.12
 import QtQuick.Layouts 1.12
-import QtQuick.Controls 2.13
+import QtQuick.Controls 2.12
 import BppTableModel 0.1
 import BppTable 0.1
 
@@ -18,24 +18,26 @@ Window {
        resource: "qrc:/assets/font-awesome-qml/fontawesome-webfont.ttf"
     }
 
+    function fillTable(){
+        var parameters = [];
+        var sqlQuery = "select col1,col6,col2,col3,col4,round( (col1 / 200.0) * 10 ) * 10 ,col8,col9 from table1"
+
+        if(txtSearch.text.length>0){
+            sqlQuery = sqlQuery + " where upper(col4) like '%' || ? || '%'";
+            parameters.push( txtSearch.text.toUpperCase() )
+        }
+
+        bGrid.fillFromQuery( workDb, sqlQuery, parameters );
+
+        txtInfo.text = 'Table has: ' + bGrid.rows() + " rows"
+    }
+
     ColumnLayout {
         id: gridLayout
         anchors.fill: parent
         anchors.margins: 10
 
         RowLayout {
-            Button {
-                text: "fillDb"
-                onPressed: {
-                    bGrid.fillFromQuery( workDb,
-                                        "select col1,col6,col2,col3,col4,round( (col1 / 200.0) * 10 ) * 10 ,col8,col9 from table1 where col1>=? and col1<?",
-                                        [0, 150]
-                    );
-
-                    txtInfo.text = 'Table has: ' + bGrid.rows() + " rows"
-                }
-            }
-
             Button {
                 text: "Hide Cost"
                 onPressed: {
@@ -61,6 +63,21 @@ Window {
                 id: txtInfo
                 font.pointSize: 11
                 text: ""
+            }
+        }
+
+        RowLayout{
+            Layout.fillWidth: true
+            TextField{
+                id: txtSearch
+                Layout.fillWidth: true
+                placeholderText: qsTr("Enter search query on name column")
+            }
+            Button{
+                text: "Fill table"
+                onPressed: {
+                    fillTable();
+                }
             }
         }
 

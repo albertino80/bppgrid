@@ -1,6 +1,6 @@
-import QtQuick 2.13
+import QtQuick 2.12
 import QtQuick.Layouts 1.12
-import QtGraphicalEffects 1.13
+import QtGraphicalEffects 1.12
 import BppTableModel 0.1
 
 Item {
@@ -42,6 +42,11 @@ Item {
 
     function getCellBackground(row) {
         return row % 2 == 0 ? dataBkOdd : dataBkEven;
+    }
+
+    function clearData(){
+        gridDataModel.beginReset();
+        gridDataModel.endReset();
     }
 
     function fillFromArray(theArr){
@@ -241,7 +246,6 @@ Item {
         }
 
         onWidthChanged: {
-            //resizeColumns(mainColumn.width);
             fromColumnListModelToTable(false); //resize columns
         }
     }
@@ -265,6 +269,8 @@ Item {
     }
 
     function columnsFromListModel(aListModel){
+        if(aListModel === null) return;
+
         columns.clear();
         for(var i=0; i<aListModel.count; i++) {
             var newColumn = {
@@ -296,6 +302,8 @@ Item {
     }
 
     function columnsFromArray(jsArray){
+        if(jsArray === null) return;
+
         columns.clear();
 
         for(var i=0; i<jsArray.length; i++) {
