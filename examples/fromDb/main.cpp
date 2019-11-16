@@ -4,6 +4,8 @@
 #include <QQmlContext>
 
 #include <bpptablemodel.h>
+#include <bppfontawesome.h>
+
 #include "mydatabase.h"
 
 int main(int argc, char *argv[])
@@ -17,8 +19,6 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QQuickStyle::setStyle("Material");
 
-    bpp::TableModel::registerQml();
-
     MyDatabase theDb;
     if(!theDb.openDb())
         return 1;
@@ -27,6 +27,9 @@ int main(int argc, char *argv[])
         return 1;
 
     QQmlApplicationEngine engine;
+
+    bpp::TableModel::registerQml();
+    bpp::FontAwesome::registerQml(engine);
 
 	engine.addImportPath("qrc:/");
     engine.rootContext()->setContextProperty("workDb", &theDb);

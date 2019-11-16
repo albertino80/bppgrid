@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>BppFa/fonts/fa-brands-400.ttf</file>
+        <file>BppFa/fonts/fa-regular-400.ttf</file>
+        <file>BppFa/fonts/fa-solid-900.ttf</file>
+    </qresource>
+</RCC>

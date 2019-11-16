@@ -12,7 +12,8 @@ namespace bpp {
         command(0),
         width(0),
         minWidth(0),
-        visible(true)
+        visible(true),
+        reference1(-1)
     {
 
     }
@@ -80,6 +81,12 @@ namespace bpp {
         }
         else
             visible = colDef["visible"].toBool();
+
+        if(!colDef.contains("dataRef1")){
+            if(withDefaults) dataRef1.clear();
+        }
+        else
+            dataRef1 = colDef["dataRef1"].toString();
     }
 
 }

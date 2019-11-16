@@ -33,6 +33,9 @@ namespace bpp {
         int minWidth;
         bool visible;
         QString role;
+        QString dataRef1;
+
+        int reference1;
 
     signals:
 

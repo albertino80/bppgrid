@@ -9,5 +9,6 @@
         <file>BppTable/CellText.qml</file>
         <file>BppTable/CompGrid.qml</file>
         <file>BppTable/qmldir</file>
+        <file>BppTable/CellFa.qml</file>
     </qresource>
 </RCC>

@@ -19,7 +19,8 @@ namespace bpp {
             roleView,
             roleCommand,
             roleHighlight,
-            roleVisible
+            roleVisible,
+            roleRef1
         };
 
         enum DataDialect{
@@ -32,7 +33,7 @@ namespace bpp {
 
         int rowCount(const QModelIndex & = QModelIndex()) const override;
         int columnCount(const QModelIndex & = QModelIndex()) const override;
-        QVariant data(const QModelIndex &index, int role) const override;
+        QVariant data(const QModelIndex &cellIndex, int role) const override;
 
         //https://doc.qt.io/qt-5/qt.html#ItemDataRole-enum
         QHash<int, QByteArray> roleNames() const override;
@@ -54,14 +55,15 @@ namespace bpp {
 
         static void registerQml();
         Q_INVOKABLE void setDbRef(TableDatabase *value);
-        Q_INVOKABLE void endUpdateColumns();
 
         Q_INVOKABLE int getColWidth(int columnId) const;
         Q_INVOKABLE void clearColumnsDef();
-        Q_INVOKABLE int addColumnDef();
-        Q_INVOKABLE void setColumnDef(int columnId, bool withDefaults, const QVariantMap& colDef);
         Q_INVOKABLE int sizeColumnsDef() const;
         const TableColumn& getColumnDef(int columnId) const;
+
+        Q_INVOKABLE int addColumnDef();
+        Q_INVOKABLE void setColumnDef(int columnId, bool withDefaults, const QVariantMap& colDef);
+        Q_INVOKABLE void endUpdateColumns();
 
     signals:
         void highlightRowChanged();
@@ -69,6 +71,9 @@ namespace bpp {
     protected:
         void appendDataVariant(QVector<QVariant>& record, const QVariant& theValue, TableColumn::ColumnType columnType, DataDialect dia);
         void calcSortColumns();
+        void calcReferenceColumns();
+
+        QVariant getDataDisplayRole(const QModelIndex &index) const;
 
         TableDatabase emptyDbRef;
         TableDatabase* dbRef;
@@ -81,6 +86,12 @@ namespace bpp {
         int highlightRow;
         QVector< QVector<QVariant> > dataVal;
         QVector<int> dataIndex;
+
+        QVariant emptyVString = QVariant(QVariant::String);
+        QVariant emptyVDouble = QVariant(QVariant::Double);
+        QVariant emptyVInt = QVariant(QVariant::Int);
+        QVariant emptyVDate = QVariant(QVariant::Date);
+        QVariant emptyVDateTime = QVariant(QVariant::DateTime);
     };
 
 }

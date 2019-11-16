@@ -11,10 +11,10 @@ Window {
     title: qsTr("Hello World")
 
     property var fruitList: [
-        {pkid: 1, name: "Apple", cost: 2.45, prog: 80},
-        {pkid: 2, name: "Orange", cost: 3.45, prog: 20},
-        {pkid: 3, name: "Banana", cost: 1.459, prog: 100},
-        {pkid: 4, name: "Strawberry", cost: 1.1467, prog: 50}
+        {pkid: 1, name: "Apple",  cost: 2.45, ico: Fa.fa_apple_alt, prog: 80, color: "green"},
+        {pkid: 2, name: "Carrot", cost: 3.45, ico: Fa.fa_carrot, prog: 20, color: "orange"},
+        {pkid: 3, name: "Lemon", cost: 1.459, ico: Fa.fa_lemon, prog: 100, color: "yellow"},
+        {pkid: 4, name: "Pepper", cost: 1.1467, ico: Fa.fa_pepper_hot, prog: 50, color: "#bb00ff"}
     ];
 
     CompGrid {
@@ -35,6 +35,12 @@ Window {
                     visible: view === Enums.CellView.SimpleText
                     text: bGrid.formatDisplay(display, dataType, 2)
                     horizontalAlignment: bGrid.getAlign(dataType)
+                }
+
+                CellFa {
+                    visible: view === Enums.CellView.FaView
+                    text: display
+                    color: ref1
                 }
 
                 CellButton {
@@ -73,8 +79,10 @@ Window {
         fromArray: [
             { role: "pkid", title: "ID", dataType: BTColumn.Int },
             { role: "name", title: "Name", minWidth: 140, view: Enums.CellView.CommandButton, command: Enums.Commands.DoCmd1 },
+            { role: "ico", title: "", width: 40, view: Enums.CellView.FaView, sort: 4, dataRef1: "color" },
             { role: "cost", title: "Cost", dataType: BTColumn.Dbl },
             { role: "prog", title: "Progress", minWidth: 100, dataType: BTColumn.Int, view: Enums.CellView.ProgressView },
+            { role: "color", visible: false, dataType: BTColumn.String }
          ]
     }
 

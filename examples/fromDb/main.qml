@@ -5,31 +5,58 @@ import QtQuick.Controls 2.12
 import BppTableModel 0.1
 import BppTable 0.1
 
-import "assets/font-awesome-qml"
-
 Window {
     visible: true
     width: 840
     height: 480
     title: qsTr("Hello World")
 
-    FontAwesome {
-       id: awesome
-       resource: "qrc:/assets/font-awesome-qml/fontawesome-webfont.ttf"
-    }
-
     function fillTable(){
         var parameters = [];
-        var sqlQuery = "select col1,col6,col2,col3,col4,round( (col1 / 200.0) * 10 ) * 10 ,col8,col9 from table1"
+        var sqlQuery = "SELECT pkid,pkid,pkid,year,city,sport,gender,
+            golds,
+            silvers,
+            bronzes,
+            round(cast(golds as double) / (golds + silvers + bronzes) * 100.0) as p_golds,
+            golds + silvers + bronzes as total
+            FROM olimpic_ita_medals"
 
         if(txtSearch.text.length>0){
-            sqlQuery = sqlQuery + " where upper(col4) like '%' || ? || '%'";
-            parameters.push( txtSearch.text.toUpperCase() )
+            sqlQuery = sqlQuery + " where city like '%' || ? || '%' or sport like '%' || ? || '%'";
+            parameters.push( txtSearch.text.toLowerCase() )
+            parameters.push( txtSearch.text.toLowerCase() )
         }
+
+        if(cmbGender.currentIndex > 0) {
+            sqlQuery = sqlQuery + " where gender = ?";
+            parameters.push( cmbGender.model[cmbGender.currentIndex] )
+        }
+
+        var startTime = new Date().getTime()
 
         bGrid.fillFromQuery( workDb, sqlQuery, parameters );
 
+        console.log( new Date().getTime() - startTime + " ms" );
+
         txtInfo.text = 'Table has: ' + bGrid.rows() + " rows"
+    }
+
+    function formatGender(display, dataType){
+        if(dataType === BTColumn.Str) {
+            if(display === "Men")
+                return Fa.fa_male;
+            return Fa.fa_female;
+        }
+        return "";
+    }
+
+    function formatGenderColor(display, dataType){
+        if(dataType === BTColumn.Str) {
+            if(display === "Men")
+                return "blue";
+            return "deeppink";
+        }
+        return "black";
     }
 
     ColumnLayout {
@@ -39,22 +66,22 @@ Window {
 
         RowLayout {
             Button {
-                text: "Hide Cost"
+                text: "Hide City"
                 onPressed: {
-                    bGrid.columns.get(1).visible = !bGrid.columns.get(1).visible
+                    bGrid.columns.get(4).visible = !bGrid.columns.get(4).visible
                 }
             }
 
             Button {
-                text: "Cost <-> Price"
+                text: "ID <-> PK"
                 onPressed: {
-                    if( bGrid.columns.get(1).title !== "Price" ) {
-                        bGrid.columns.get(1).title = "Price"
-                        bGrid.columns.get(1).width = 80
+                    if( bGrid.columns.get(0).title !== "ID" ) {
+                        bGrid.columns.get(0).title = "ID"
+                        bGrid.columns.get(0).width = 40
                     }
                     else {
-                        bGrid.columns.get(1).title = "Cost"
-                        bGrid.columns.get(1).width = 100
+                        bGrid.columns.get(0).title = "PK"
+                        bGrid.columns.get(0).width = 50
                     }
                 }
             }
@@ -68,10 +95,16 @@ Window {
 
         RowLayout{
             Layout.fillWidth: true
+            ComboBox{
+                id: cmbGender
+                Layout.minimumWidth: 140
+                model: ["<gender>", "Men", "Women"]
+                currentIndex: 0
+            }
             TextField{
                 id: txtSearch
                 Layout.fillWidth: true
-                placeholderText: qsTr("Enter search query on name column")
+                placeholderText: qsTr("Enter search query on city/sport column")
             }
             Button{
                 text: "Fill table"
@@ -83,14 +116,25 @@ Window {
 
         ListModel{
             id: modColumns
-            ListElement { width: 50; title: "ID"; dataType: BTColumn.Int }
+            ListElement { width: 40; title: "ID"; dataType: BTColumn.Int; role: "id" }
+            ListElement { width: 40; title: ""; sort: 4; view: Enums.CellView.CommandButton; command: Enums.Commands.DoCmd1; dataRef1: "id" }
+            ListElement { width: 40; title: ""; sort: 4; view: Enums.CellView.CommandButton; command: Enums.Commands.DoCmd2; dataRef1: "id" }
+            ListElement { width: 60; title: "Year"; dataType: BTColumn.Int }
+            ListElement { minWidth: 120; title: "City" }
+            ListElement { minWidth: 120; title: "Sport" }
+            ListElement { width: 40; title: ""; view: Enums.CellView.GenderCell }
+            ListElement { width: 70; title: "Golds"; dataType: BTColumn.Int }
+            ListElement { width: 70; title: "Silv."; dataType: BTColumn.Int }
+            ListElement { width: 70; title: "Bronz."; dataType: BTColumn.Int }
+            ListElement { width: 70; title: "% Gold"; dataType: BTColumn.Int; view: Enums.CellView.ProgressView }
+            ListElement { width: 50; title: "Tot"; dataType: BTColumn.Int }
+            /*
             ListElement { title: "Cost"; dataType: BTColumn.Dbl }
-            ListElement { width: 40; title: ""; sort: 4; view: Enums.CellView.CommandButton; command: Enums.Commands.DoCmd1 }
-            ListElement { width: 40; title: ""; sort: 4; view: Enums.CellView.CommandButton; command: Enums.Commands.DoCmd2 }
             ListElement { minWidth: 140; title: "Name" }
             ListElement { title: "Progress"; dataType: BTColumn.Int ; view: Enums.CellView.ProgressView }
             ListElement { minWidth: 120; title: "Date"; dataType: BTColumn.Date }
             ListElement { width: 170; title: "DateTime"; dataType: BTColumn.DateTime }
+            */
         }
 
         CompGrid {
@@ -114,6 +158,16 @@ Window {
                         visible: view === Enums.CellView.SimpleText
                         text: bGrid.formatDisplay(display, dataType, 2)
                         horizontalAlignment: bGrid.getAlign(dataType)
+                        font.capitalization: Font.Capitalize
+                    }
+
+                    CellText {
+                        visible: view === Enums.CellView.GenderCell
+                        font.family: Fa.solid
+                        text: formatGender(display, dataType)
+                        color: formatGenderColor(display, dataType)
+                        horizontalAlignment: Text.AlignHCenter;
+                        font.pointSize: 14
                     }
 
                     ButtonAction {
@@ -124,7 +178,7 @@ Window {
                     ProgressBar {
                         visible: view === Enums.CellView.ProgressView
                         anchors.centerIn: parent
-                        width: 80
+                        width: 60
                         from: 0
                         to: 100
                         value: dataType === BTColumn.Int ? display : 0
@@ -140,7 +194,7 @@ Window {
                         viewId: view
                         commandId: command
                         onDoCommand: {
-                            txtInfo.text = 'Clicked: ' + commandId + ', value: ' + display + ', ID: ' + bGrid.cellValue(row,0)
+                            txtInfo.text = 'Clicked: ' + commandId + ', ID: ' + display + ', Year: ' + bGrid.cellValue(row,3)
                         }
                     }
                 }

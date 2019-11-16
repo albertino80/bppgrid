@@ -3,6 +3,7 @@ import QtQuick 2.0
 Item {
     enum CellView {
         SimpleText = 0,
+        GenderCell,
         CommandButton,
         ProgressView
     }

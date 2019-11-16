@@ -47,6 +47,7 @@ Item {
     function clearData(){
         gridDataModel.beginReset();
         gridDataModel.endReset();
+        tview.contentY = 0;
     }
 
     function fillFromArray(theArr){
@@ -55,15 +56,18 @@ Item {
             gridDataModel.addRecord(theArr[i]);
         }
         gridDataModel.endReset();
+        ensureVisible();
     }
 
     function fillFromQuery(theDb, theSql, theParameters){
         gridDataModel.setDbRef( theDb );
         gridDataModel.addFromQuery(theSql, theParameters);
+        ensureVisible();
     }
 
     function fillFromJson(theJson){
         gridDataModel.addFromList(theJson);
+        ensureVisible();
     }
 
     function fillFromListModel(theModel){
@@ -72,6 +76,7 @@ Item {
             records.push( JSON.parse(JSON.stringify(theModel.get(i))) )
         }
         gridDataModel.addFromList(records);
+        ensureVisible();
     }
 
     function formatDisplay(display, dataType, decimals){
@@ -216,7 +221,7 @@ Item {
             model: gridDataModel
             reuseItems: true
 
-            delegate: cellDelegate //tableViewDelegate
+            delegate: cellDelegate
 
             onContentXChanged: {
                 if(contentX >= 0 && headingsFlick.contentX !== contentX)
@@ -268,6 +273,11 @@ Item {
         columnsFromArray(fromArray);
     }
 
+    function ensureVisible(){
+        if(tview.contentY >= gridDataModel.rowCount() * dataHeight)
+            tview.contentY = 0;
+    }
+
     function columnsFromListModel(aListModel){
         if(aListModel === null) return;
 
@@ -282,7 +292,8 @@ Item {
                 "view": 0,
                 "command": 0,
                 "role": "col" + i,
-                "visible": true
+                "visible": true,
+                "dataRef1": ""
             };
 
             if(aListModel.get(i).width !== undefined)   newColumn.width = aListModel.get(i).width;
@@ -294,6 +305,7 @@ Item {
             if(aListModel.get(i).command !== undefined)   newColumn.command = aListModel.get(i).command;
             if(aListModel.get(i).role !== undefined && newColumn.role.length > 0)   newColumn.role = aListModel.get(i).role;
             if(aListModel.get(i).visible !== undefined)   newColumn.visible = aListModel.get(i).visible;
+            if(aListModel.get(i).dataRef1 !== undefined)   newColumn.dataRef1 = aListModel.get(i).dataRef1;
 
             if(newColumn.width === 0) newColumn.width = 100;
 
@@ -316,7 +328,8 @@ Item {
                 "view": 0,
                 "command": 0,
                 "role": "col" + i,
-                "visible": true
+                "visible": true,
+                "dataRef1": ""
             };
 
             if(jsArray[i].width !== undefined)   newColumn.width = jsArray[i].width;
@@ -328,6 +341,7 @@ Item {
             if(jsArray[i].command !== undefined)   newColumn.command = jsArray[i].command;
             if(jsArray[i].role !== undefined && newColumn.role.length > 0)   newColumn.role = jsArray[i].role;
             if(jsArray[i].visible !== undefined)   newColumn.visible = jsArray[i].visible;
+            if(jsArray[i].dataRef1 !== undefined)   newColumn.dataRef1 = jsArray[i].dataRef1;
 
             if(newColumn.width === 0) newColumn.width = 100;
 
@@ -373,8 +387,10 @@ Item {
                 else {
                     var factor = newWidth / minWidth;
                     for (var iCol2 of toResize) {
-                        if(columns.get(iCol2).width !== columns.get(iCol2).minWidth * factor)
-                            columns.get(iCol2).width = columns.get(iCol2).minWidth * factor;
+                        var calcWidth = Math.floor(columns.get(iCol2).minWidth * factor)
+
+                        if(columns.get(iCol2).width !== calcWidth)
+                            columns.get(iCol2).width = calcWidth;
                     }
                 }
 
@@ -387,7 +403,6 @@ Item {
             var newCol = gridDataModel.addColumnDef();
             gridDataModel.setColumnDef(newCol, resetDefaults, JSON.parse(JSON.stringify(columns.get(i))) )
         }
-
         gridDataModel.endUpdateColumns( );
     }
 

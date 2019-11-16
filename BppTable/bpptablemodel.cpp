@@ -32,48 +32,31 @@ namespace bpp {
         return sizeColumnsDef();
     }
 
-    QVariant TableModel::data(const QModelIndex &index, int role) const
+    QVariant TableModel::data(const QModelIndex &cellIndex, int role) const
     {
         switch (role) {
         case Qt::DisplayRole:
-            //return QString("%1,%2,%3").arg(aPrefix).arg(index.column()).arg(index.row());
-            {
-                int whatRow = index.row();
-                if(!dataIndex.isEmpty())
-                    whatRow = dataIndex[whatRow];
-
-                const QVariant& colVal = dataVal[whatRow][index.column()];
-                switch ( getColumnDef( index.column() ).type) {
-                case TableColumn::Str:
-                    if(colVal.isNull()) return QVariant(QVariant::String);
-                    else                return colVal.toString();
-                case TableColumn::Dbl:
-                    if(colVal.isNull()) return QVariant(QVariant::Double);
-                    else                return colVal.toDouble();
-                case TableColumn::Int:
-                    if(colVal.isNull()) return QVariant(QVariant::Int);
-                    else                return colVal.toInt();
-                case TableColumn::Date:
-                    if(colVal.isNull()) return QVariant(QVariant::Date);
-                    else                return colVal.toDate();
-                case TableColumn::DateTime:
-                    if(colVal.isNull()) return QVariant(QVariant::DateTime);
-                    else                return colVal.toDateTime();
-                }
-                return colVal.toString();
-            }
+            return getDataDisplayRole(cellIndex);
         case roleDataType:
-            return getColumnDef( index.column() ).type;
+            return getColumnDef( cellIndex.column() ).type;
         case roleView:
-            return getColumnDef( index.column() ).view;
+            return getColumnDef( cellIndex.column() ).view;
         case roleCommand:
-            return getColumnDef( index.column() ).command;
+            return getColumnDef( cellIndex.column() ).command;
         case roleHighlight:
-            if(index.row() == highlightRow)
+            if(cellIndex.row() == highlightRow)
                 return true;
             return false;
         case roleVisible:
-            return getColumnDef( index.column() ).visible;
+            return getColumnDef( cellIndex.column() ).visible;
+        case roleRef1:
+            {
+                int reference = getColumnDef( cellIndex.column() ).reference1;
+                if(reference >= 0)
+                    return getDataDisplayRole( QModelIndex( index(cellIndex.row(), reference) ) );
+                else
+                    return QString("");
+            }
         default:
             break;
         }
@@ -90,7 +73,8 @@ namespace bpp {
             {roleView, "view"},
             {roleCommand, "command"},
             {roleHighlight, "highlight"},
-            {roleVisible, "visible"}
+            {roleVisible, "visible"},
+            {roleRef1, "ref1"}
         };
     }
 
@@ -250,15 +234,18 @@ namespace bpp {
 
             beginReset();
 
+            dataVal.reserve(100);
+            int nCols = sizeColumnsDef();
             while(query.next() && allOk) {
-
                 dataVal.push_back(QVector<QVariant>());
                 QVector<QVariant>& curRow = dataVal.last();
+                curRow.reserve( nCols );
 
-                for(int iCol = 0; iCol < sizeColumnsDef(); iCol++) {
+                for(int iCol = 0; iCol < nCols; iCol++) {
                     appendDataVariant(curRow, query.value(iCol), getColumnDef( iCol ).type, DataDialect::Sqlite);
                 }
             }
+            dataVal.shrink_to_fit();
 
             if(query.lastError().isValid())
             {
@@ -335,6 +322,7 @@ namespace bpp {
 
     void TableModel::endUpdateColumns()
     {
+        calcReferenceColumns();
         calcSortColumns();
         updateLayout();
     }
@@ -385,19 +373,19 @@ namespace bpp {
         if(theValue.isNull())
             switch(columnType){
             case TableColumn::Str:
-                record.push_back( QVariant(QVariant::String) );
+                record.push_back( emptyVString );
                 break;
             case TableColumn::Dbl:
-                record.push_back( QVariant(QVariant::Double) );
+                record.push_back( emptyVDouble );
                 break;
             case TableColumn::Int:
-                record.push_back( QVariant(QVariant::Int) );
+                record.push_back( emptyVInt );
                 break;
             case TableColumn::Date:
-                record.push_back( QVariant(QVariant::Date) );
+                record.push_back( emptyVDate );
                 break;
             case TableColumn::DateTime:
-                record.push_back( QVariant(QVariant::DateTime) );
+                record.push_back( emptyVDateTime );
                 break;
             }
         else {
@@ -436,13 +424,58 @@ namespace bpp {
         sortColumns.clear();
         dataSorted = false;
 
-        for(int i = 0; i < sizeColumnsDef(); i++){
+        for(int i = 0; i < columnsDef.size(); i++){
             int sortVal = getColumnDef(i).sortFlag;
             if(sortVal == 1)
                 sortColumns.push_back(i+1);
             if(sortVal == 2)
                 sortColumns.push_back(-(i+1));
         }
+    }
+
+    void TableModel::calcReferenceColumns()
+    {
+        for(int iColumn = 0; iColumn < columnsDef.size(); iColumn++){
+            TableColumn* currentColumn = columnsDef[iColumn];
+            if(currentColumn->dataRef1.isEmpty())
+                currentColumn->reference1 = -1;
+            else {
+                currentColumn->reference1 = -1;
+                for(int iSeek = 0; iSeek < columnsDef.size() && currentColumn->reference1 == -1; iSeek++){
+                    TableColumn* seekColumn = columnsDef[iSeek];
+                    if(!seekColumn->role.isEmpty() && currentColumn->dataRef1.compare(seekColumn->role) == 0){
+                        currentColumn->reference1 = iSeek;
+                    }
+                }
+            }
+        }
+    }
+
+    QVariant TableModel::getDataDisplayRole(const QModelIndex &index) const
+    {
+        int whatRow = index.row();
+        if(!dataIndex.isEmpty())
+            whatRow = dataIndex[whatRow];
+
+        const QVariant& colVal = dataVal[whatRow][index.column()];
+        switch ( getColumnDef( index.column() ).type) {
+        case TableColumn::Str:
+            if(colVal.isNull()) return QVariant(QVariant::String);
+            else                return colVal.toString();
+        case TableColumn::Dbl:
+            if(colVal.isNull()) return QVariant(QVariant::Double);
+            else                return colVal.toDouble();
+        case TableColumn::Int:
+            if(colVal.isNull()) return QVariant(QVariant::Int);
+            else                return colVal.toInt();
+        case TableColumn::Date:
+            if(colVal.isNull()) return QVariant(QVariant::Date);
+            else                return colVal.toDate();
+        case TableColumn::DateTime:
+            if(colVal.isNull()) return QVariant(QVariant::DateTime);
+            else                return colVal.toDateTime();
+        }
+        return colVal.toString();
     }
 
     int TableModel::getHighlightRow() const
