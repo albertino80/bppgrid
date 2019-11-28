@@ -1,5 +1,5 @@
 import QtQuick 2.12
-import QtQuick.Window 2.12
+import QtQuick.Window 2.11
 import QtQuick.Controls 2.12
 import BppTableModel 0.1
 import BppTable 0.1
@@ -56,10 +56,6 @@ Window {
                     from: 0
                     to: 100
                     value: dataType === BTColumn.Int ? display : 0
-                }
-
-                CellSeparator{
-                    color: bGrid.dataLines
                 }
 
                 CellClicker {

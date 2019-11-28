@@ -18,11 +18,10 @@ Obtaining:
 - BppFa/setup/icons.json
 
 With FontForge (https://fontforge.org/en-US/)
-Edit Font `BppFa/fonts/fa-regular-400.ttf`
-Modify the property: Informations->TTF Names->WWS Family: `Font Awesome 5 Free Regular`
 
-Edit Font `BppFa/fonts/fa-solid-900.ttf`
-Modify the property: Informations->TTF Names->WWS Family: `Font Awesome 5 Free Solid`
+Edit Font `BppFa/fonts/fa-regular-400.ttf` Modify the property: Informations->TTF Names->WWS Family: `Font Awesome 5 Free Regular`
+
+Edit Font `BppFa/fonts/fa-solid-900.ttf` Modify the property: Informations->TTF Names->WWS Family: `Font Awesome 5 Free Solid`
 
 Execute (CLI):
 ```

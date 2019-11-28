@@ -18,18 +18,6 @@ Item {
     Rectangle {
         id: rect
         radius: 15
-        /*
-        gradient: Gradient {
-            GradientStop {
-                position: 0.00;
-                color: "#11ad11";
-            }
-            GradientStop {
-                position: 1.00;
-                color: "#008800";
-            }
-        }
-        */
         color: "#11ad11"
         border.color: "#515151"
         border.width: 2

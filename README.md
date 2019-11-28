@@ -86,10 +86,6 @@ Window {
                     horizontalAlignment: bGrid.getAlign(dataType)
                 }
 
-                CellSeparator{
-                    color: bGrid.dataLines
-                }
-
                 CellClicker {
                     grid: bGrid
                 }

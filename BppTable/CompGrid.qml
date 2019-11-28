@@ -1,6 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Layouts 1.12
 import QtGraphicalEffects 1.12
+import QtQuick.Controls 2.12
 import BppTableModel 0.1
 
 Item {
@@ -11,9 +12,10 @@ Item {
     property color dataLines: "#E5E5E5"
 
     property int headingsHeight: 30
-    property color headingsBk: "#D7D7D7"
+    property color headingsBk: "#E7E7E7"
     property color headingsLines: "#C5C5C5"
-    property color headingsTextColor: "#515151"
+    //property color headingsTextColor: "#313131"
+    property color headingsTextColor: "black"
     property color headingsSortColor: "#000099"
     property color headingsNoSortColor: "#888888"
 
@@ -109,145 +111,161 @@ Item {
         return Text.AlignLeft;
     }
 
-    ColumnLayout {
-        id: mainColumn
+    Rectangle {
+        border.color: headingsLines
+        //border.color: "black"
+        color: headingsLines
+        //color: "transparent"
         anchors.fill: parent
-        anchors.margins: 1
-        spacing: 0
 
-        Flickable {
-            id: headingsFlick
-            Layout.fillWidth: true
-            height: headingsHeight
-            contentWidth: tview.contentWidth
+        ColumnLayout {
+            id: mainColumn
+            anchors.fill: parent
+            /*
+            anchors.leftMargin: 1
+            anchors.rightMargin: 1
+            anchors.bottomMargin: 1
+            */
+            anchors.margins: 1
+
+            spacing: 0
             clip: true
 
-            RowLayout {
-                id: headings
-                Layout.fillWidth: true
-                spacing: 0
+                Flickable {
+                    id: headingsFlick
+                    Layout.fillWidth: true
+                    height: headingsHeight
+                    contentWidth: tview.contentWidth
+                    boundsBehavior: Flickable.StopAtBounds
+                    clip: true
 
-                Repeater {
-                    id: colRepeater
-                    model: columns //ListModel {}
-                    Rectangle{
-                        Layout.minimumWidth: model.width;
-                        Layout.minimumHeight: headingsFlick.height
-                        color: headingsBk
-                        visible: model.visible
+                    RowLayout {
+                        id: headings
+                        Layout.fillWidth: true
+                        spacing: 1
 
-                        property int sortIndicator: sort;
+                        Repeater {
+                            id: colRepeater
+                            model: columns //ListModel {}
+                            Rectangle{
+                                Layout.minimumWidth: model.width;
+                                Layout.minimumHeight: headingsFlick.height
+                                color: headingsBk
+                                visible: model.visible
 
-                        Text{
-                            color: headingsTextColor
-                            anchors{
-                                left: parent.left
-                                top: parent.top
-                                bottom: parent.bottom
-                                right: sortImage.left
-                            }
+                                property int sortIndicator: sort;
 
-                            leftPadding: 5
-                            font.bold: true
-                            verticalAlignment: Text.AlignVCenter
-                            text: title
-                            elide: Qt.ElideRight
-                        }
+                                Text{
+                                    color: headingsTextColor
+                                    anchors{
+                                        left: parent.left
+                                        top: parent.top
+                                        bottom: parent.bottom
+                                        right: sortImage.left
+                                    }
 
-                        Image {
-                            id: sortImage
-                            anchors.right: parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.rightMargin: 5
-                            visible: sortIndicator !== 4
+                                    leftPadding: 5
+                                    //font.bold: true
+                                    verticalAlignment: Text.AlignVCenter
+                                    font.pointSize: 11
+                                    text: title
+                                    elide: Qt.ElideRight
+                                }
 
-                            source: sortIndicator === 0 ? "qrc:/BppTable/assets/sort-up-and-down.svg" :
-                                    (
-                                        sortIndicator === 1 ? "qrc:/BppTable/assets/sort-up.svg" :
-                                                              "qrc:/BppTable/assets/sort-down.svg"
-                                    )
-                            width: 10; height: 10
-                        }
-                        ColorOverlay{
-                            visible: sortIndicator !== 4
-                            anchors.fill: sortImage
-                            source:sortImage
-                            color: sortIndicator === 0 ? headingsNoSortColor : headingsSortColor
-                            transform:rotation
-                            antialiasing: true
-                        }
+                                Image {
+                                    id: sortImage
+                                    anchors.right: parent.right
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.rightMargin: 5
+                                    visible: sortIndicator !== 4
 
-                        Rectangle{
-                            anchors.right: parent.right
-                            anchors.top: parent.top
-                            anchors.bottom: parent.bottom
-                            color: headingsLines
-                            width: 1
-                        }
+                                    source: sortIndicator === 0 ? "qrc:/BppTable/assets/sort-up-and-down.svg" :
+                                            (
+                                                sortIndicator === 1 ? "qrc:/BppTable/assets/sort-up.svg" :
+                                                                      "qrc:/BppTable/assets/sort-down.svg"
+                                            )
+                                    width: 10; height: 10
+                                }
+                                ColorOverlay{
+                                    visible: sortIndicator !== 4
+                                    anchors.fill: sortImage
+                                    source:sortImage
+                                    color: sortIndicator === 0 ? headingsNoSortColor : headingsSortColor
+                                    transform:rotation
+                                    antialiasing: true
+                                }
 
-                        MouseArea {
-                            anchors.fill: parent
-                            visible: sortIndicator !== 4
-                            onClicked: {
-                                var newSort = columns.get(index).sort;
-                                newSort++;
-                                if(newSort > 2) newSort = 0;
+                                /*
+                                Rectangle{
+                                    anchors.right: parent.right
+                                    anchors.top: parent.top
+                                    anchors.bottom: parent.bottom
+                                    color: headingsLines
+                                    width: 1
+                                }
+                                */
 
-                                gridDataModel.dataNeedSort();
-                                columns.get(index).sort = newSort;
-                                gridDataModel.updateLayout();
+                                MouseArea {
+                                    anchors.fill: parent
+                                    visible: sortIndicator !== 4
+                                    onClicked: {
+                                        var newSort = columns.get(index).sort;
+                                        newSort++;
+                                        if(newSort > 2) newSort = 0;
+
+                                        gridDataModel.dataNeedSort();
+                                        columns.get(index).sort = newSort;
+                                        gridDataModel.updateLayout();
+                                    }
+                                }
                             }
                         }
                     }
+
+                    onContentXChanged: {
+                        if(contentX >= 0 && tview.contentX !== contentX)
+                            tview.contentX = contentX
+                    }
                 }
-            }
 
-            onContentXChanged: {
-                if(contentX >= 0 && tview.contentX !== contentX)
-                    tview.contentX = contentX
-            }
-        }
+                TableView {
+                    id: tview
+                    columnSpacing: 1
+                    rowSpacing: 0
+                    clip: true
+                    boundsBehavior: Flickable.StopAtBounds
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
 
-        TableView {
-            id: tview
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            columnSpacing: 0
-            rowSpacing: 0
-            clip: true
+                    columnWidthProvider: gridDataModel.getColWidth;
 
-            columnWidthProvider: gridDataModel.getColWidth;
+                    model: gridDataModel
+                    reuseItems: true
 
-            model: gridDataModel
-            reuseItems: true
+                    delegate: cellDelegate
 
-            delegate: cellDelegate
+                    ScrollBar.horizontal: ScrollBar { orientation: Qt.Horizontal }
+                    ScrollBar.vertical: ScrollBar { }
 
-            onContentXChanged: {
-                if(contentX >= 0 && headingsFlick.contentX !== contentX)
-                    headingsFlick.contentX = contentX
-            }
+                    onContentXChanged: {
+                        if(contentX >= 0 && headingsFlick.contentX !== contentX)
+                            headingsFlick.contentX = contentX
+                    }
 
-            Rectangle {
-                id: highlightRect
-                border.width: 2
-                border.color: dataHighlight
-                color: "transparent"
-                radius: 5
-                anchors.left: parent.left
-                anchors.right: parent.right
-                z:2
-                y:0
-                height: 100
-                visible: false
-            }
-            Rectangle {
-                z:2
-                border.width: 1
-                border.color: headingsLines
-                color: "transparent"
-                anchors.fill: parent
-            }
+                    Rectangle {
+                        id: highlightRect
+                        border.width: 2
+                        border.color: dataHighlight
+                        color: "transparent"
+                        radius: 5
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        z:2
+                        y:0
+                        height: 100
+                        visible: false
+                    }
+                }
         }
 
         onWidthChanged: {
@@ -357,40 +375,55 @@ Item {
         var i;
         if(columns.count > 0 && mainColumn.width > 0){
             var minWidth = 0;
-            var toResize = new Set();
+            var toResize = [];
+            var curCol = null;
 
             for(i=0; i<columns.count; i++){
-                if(columns.get(i).minWidth && columns.get(i).visible) {
-                    toResize.add(i);
+                curCol = columns.get(i);
+                if(curCol.minWidth && curCol.visible) {
+                    toResize.push(i);
                     minWidth += columns.get(i).minWidth;
                 }
             }
 
-            if(toResize.size > 0) {
+            if(toResize.length > 0) {
                 doFireColumnsChange = false;
 
+                var colSpace = 0;
                 var usedWidth = 0;
                 for(i=0; i<columns.count; i++){
-                    if(!toResize.has(i) && columns.get(i).visible) {
-                        usedWidth += columns.get(i).width;
+                    curCol = columns.get(i);
+                    if(curCol.visible) {
+                        if(i < columns.count -1) colSpace++;
+                        if(!curCol.minWidth)
+                            usedWidth += columns.get(i).width;
                     }
                 }
 
-                var newWidth = mainColumn.width - usedWidth;
-                if( newWidth < minWidth ) {
-                    //mantain minWidth
-                    for (var iCol1 of toResize) {
-                        if(columns.get(iCol1).width !== columns.get(iCol1).minWidth)
-                            columns.get(iCol1).width = columns.get(iCol1).minWidth;
+                var newWidth = mainColumn.width - colSpace - usedWidth;
+                if( newWidth < minWidth ) { //mantain minWidth
+                    for(i=0; i<toResize.length; i++) {
+                        curCol = columns.get( toResize[i] );
+                        if(curCol.width !== curCol.minWidth)
+                            curCol.width = curCol.minWidth;
                     }
                 }
                 else {
+                    var allWidth = 0;
                     var factor = newWidth / minWidth;
-                    for (var iCol2 of toResize) {
-                        var calcWidth = Math.floor(columns.get(iCol2).minWidth * factor)
+                    for(i=0; i < toResize.length; i++) {
+                        curCol = columns.get( toResize[i] );
 
-                        if(columns.get(iCol2).width !== calcWidth)
-                            columns.get(iCol2).width = calcWidth;
+                        var calcWidth = Math.floor(curCol.minWidth * factor);
+                        if(i === toResize.length - 1) {
+                            //due to previous roundings, last resize column get all available space
+                            calcWidth = mainColumn.width - colSpace - (allWidth + usedWidth)
+                        }
+                        else
+                            allWidth += calcWidth;
+
+                        if(curCol.width !== calcWidth)
+                            curCol.width = calcWidth;
                     }
                 }
 

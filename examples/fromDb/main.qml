@@ -13,7 +13,7 @@ Window {
 
     function fillTable(){
         var parameters = [];
-        var sqlQuery = "SELECT pkid,pkid,pkid,year,city,sport,gender,
+        var sqlQuery = "SELECT pkid,null,null,year,city,sport,gender,
             golds,
             silvers,
             bronzes,
@@ -21,14 +21,19 @@ Window {
             golds + silvers + bronzes as total
             FROM olimpic_ita_medals"
 
+        if(txtSearch.text.length>0 || cmbGender.currentIndex > 0){
+            sqlQuery += " where";
+        }
+
         if(txtSearch.text.length>0){
-            sqlQuery = sqlQuery + " where city like '%' || ? || '%' or sport like '%' || ? || '%'";
+            sqlQuery += " (city like '%' || ? || '%' or sport like '%' || ? || '%')";
             parameters.push( txtSearch.text.toLowerCase() )
             parameters.push( txtSearch.text.toLowerCase() )
         }
 
         if(cmbGender.currentIndex > 0) {
-            sqlQuery = sqlQuery + " where gender = ?";
+            if(txtSearch.text.length>0) sqlQuery += " AND"
+            sqlQuery += " gender = ?";
             parameters.push( cmbGender.model[cmbGender.currentIndex] )
         }
 
@@ -128,13 +133,6 @@ Window {
             ListElement { width: 70; title: "Bronz."; dataType: BTColumn.Int }
             ListElement { width: 70; title: "% Gold"; dataType: BTColumn.Int; view: Enums.CellView.ProgressView }
             ListElement { width: 50; title: "Tot"; dataType: BTColumn.Int }
-            /*
-            ListElement { title: "Cost"; dataType: BTColumn.Dbl }
-            ListElement { minWidth: 140; title: "Name" }
-            ListElement { title: "Progress"; dataType: BTColumn.Int ; view: Enums.CellView.ProgressView }
-            ListElement { minWidth: 120; title: "Date"; dataType: BTColumn.Date }
-            ListElement { width: 170; title: "DateTime"; dataType: BTColumn.DateTime }
-            */
         }
 
         CompGrid {
@@ -176,16 +174,27 @@ Window {
                     }
 
                     ProgressBar {
+                        id: control
                         visible: view === Enums.CellView.ProgressView
                         anchors.centerIn: parent
                         width: 60
                         from: 0
                         to: 100
                         value: dataType === BTColumn.Int ? display : 0
-                    }
 
-                    CellSeparator{
-                        color: bGrid.dataLines
+                        background: Rectangle {
+                            implicitHeight: 18
+                            color: "lavenderblush"
+                        }
+
+                        contentItem: Item {
+                            Rectangle {
+                                id: rectLeft
+                                width: control.visualPosition * parent.width
+                                height: parent.height
+                                color: "gold"
+                            }
+                        }
                     }
 
                     CellClicker {
@@ -194,7 +203,7 @@ Window {
                         viewId: view
                         commandId: command
                         onDoCommand: {
-                            txtInfo.text = 'Clicked: ' + commandId + ', ID: ' + display + ', Year: ' + bGrid.cellValue(row,3)
+                            txtInfo.text = 'Clicked: ' + commandId + ', ID: ' + ref1 + ', Year: ' + bGrid.cellValue(row,3)
                         }
                     }
                 }

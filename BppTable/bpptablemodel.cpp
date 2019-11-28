@@ -34,24 +34,26 @@ namespace bpp {
 
     QVariant TableModel::data(const QModelIndex &cellIndex, int role) const
     {
+        const TableColumn &cdef = getColumnDef( cellIndex.column() );
+
         switch (role) {
         case Qt::DisplayRole:
             return getDataDisplayRole(cellIndex);
         case roleDataType:
-            return getColumnDef( cellIndex.column() ).type;
+            return cdef.type;
         case roleView:
-            return getColumnDef( cellIndex.column() ).view;
+            return cdef.view;
         case roleCommand:
-            return getColumnDef( cellIndex.column() ).command;
+            return cdef.command;
         case roleHighlight:
             if(cellIndex.row() == highlightRow)
                 return true;
             return false;
         case roleVisible:
-            return getColumnDef( cellIndex.column() ).visible;
+            return cdef.visible;
         case roleRef1:
             {
-                int reference = getColumnDef( cellIndex.column() ).reference1;
+                int reference = cdef.reference1;
                 if(reference >= 0)
                     return getDataDisplayRole( QModelIndex( index(cellIndex.row(), reference) ) );
                 else
@@ -242,7 +244,10 @@ namespace bpp {
                 curRow.reserve( nCols );
 
                 for(int iCol = 0; iCol < nCols; iCol++) {
-                    appendDataVariant(curRow, query.value(iCol), getColumnDef( iCol ).type, DataDialect::Sqlite);
+                    if(getColumnDef( iCol ).reference1 < 0)
+                        appendDataVariant(curRow, query.value(iCol), getColumnDef( iCol ).type, DataDialect::Sqlite);
+                    else
+                        appendDataVariant(curRow, emptyVInt, getColumnDef( iCol ).type, DataDialect::JsonISO);
                 }
             }
             dataVal.shrink_to_fit();
@@ -273,7 +278,7 @@ namespace bpp {
 
             for(int iCol = 0; iCol < sizeColumnsDef(); iCol++) {
                 if(!curValues.contains(getColumnDef( iCol ).role))
-                    appendDataVariant(curRow, QVariant(QVariant::Int), getColumnDef( iCol ).type, DataDialect::JsonISO);
+                    appendDataVariant(curRow, emptyVInt, getColumnDef( iCol ).type, DataDialect::JsonISO);
                 else
                     appendDataVariant(curRow, curValues[getColumnDef( iCol ).role], getColumnDef( iCol ).type, DataDialect::JsonISO);
             }
@@ -292,7 +297,10 @@ namespace bpp {
         QVector<QVariant>& curRow = dataVal.last();
         iCol=0;
         for(auto& theValue: theData){
-            appendDataVariant(curRow, theValue, getColumnDef( iCol ).type, DataDialect::JsonISO);
+            if(getColumnDef( iCol ).reference1 < 0)
+                appendDataVariant(curRow, theValue, getColumnDef( iCol ).type, DataDialect::JsonISO);
+            else
+                appendDataVariant(curRow, emptyVInt, getColumnDef( iCol ).type, DataDialect::JsonISO);
             iCol++;
         }
 
