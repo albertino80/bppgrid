@@ -71,9 +71,11 @@ Window {
 
         RowLayout {
             Button {
-                text: "Hide City"
+                property bool colVisible: true
+                text: colVisible ? "Hide City" : "Show City"
                 onPressed: {
                     bGrid.columns.get(4).visible = !bGrid.columns.get(4).visible
+                    colVisible = bGrid.columns.get(4).visible
                 }
             }
 
@@ -199,11 +201,9 @@ Window {
 
                     CellClicker {
                         grid: bGrid
-                        viewCommand: Enums.CellView.CommandButton
-                        viewId: view
-                        commandId: command
+                        linkEnabled: view === Enums.CellView.CommandButton
                         onDoCommand: {
-                            txtInfo.text = 'Clicked: ' + commandId + ', ID: ' + ref1 + ', Year: ' + bGrid.cellValue(row,3)
+                            txtInfo.text = 'Clicked: ' + command + ', ID: ' + ref1 + ', Year: ' + bGrid.cellValue(row,3)
                         }
                     }
                 }

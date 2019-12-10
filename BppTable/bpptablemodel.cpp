@@ -29,7 +29,7 @@ namespace bpp {
 
     int TableModel::columnCount(const QModelIndex &) const
     {
-        return sizeColumnsDef();
+        return columnsDef.size();
     }
 
     QVariant TableModel::data(const QModelIndex &cellIndex, int role) const
@@ -237,7 +237,7 @@ namespace bpp {
             beginReset();
 
             dataVal.reserve(100);
-            int nCols = sizeColumnsDef();
+            int nCols = columnsDef.size();
             while(query.next() && allOk) {
                 dataVal.push_back(QVector<QVariant>());
                 QVector<QVariant>& curRow = dataVal.last();
@@ -276,7 +276,7 @@ namespace bpp {
             dataVal.push_back(QVector<QVariant>());
             QVector<QVariant>& curRow = dataVal.last();
 
-            for(int iCol = 0; iCol < sizeColumnsDef(); iCol++) {
+            for(int iCol = 0; iCol < columnsDef.size(); iCol++) {
                 if(!curValues.contains(getColumnDef( iCol ).role))
                     appendDataVariant(curRow, emptyVInt, getColumnDef( iCol ).type, DataDialect::JsonISO);
                 else
@@ -291,7 +291,7 @@ namespace bpp {
     void TableModel::addRecord(const QList<QVariant>& theData)
     {
         int iCol;
-        int numColumns( sizeColumnsDef() );
+        int numColumns( columnsDef.size() );
 
         dataVal.push_back(QVector<QVariant>());
         QVector<QVariant>& curRow = dataVal.last();
@@ -335,15 +335,24 @@ namespace bpp {
         updateLayout();
     }
 
+    bool TableModel::canHideColumns()
+    {
+        #if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
+            return true;
+        #else
+            return false;
+        #endif
+    }
+
     int TableModel::getColWidth(int columnId) const
     {
+        int theW(0);
         if(columnId<0)
-            return 100;
+            theW = 100;
+        else if(columnsDef[columnId]->visible)
+            theW = columnsDef[columnId]->width;
 
-        if(!columnsDef[columnId]->visible)
-            return 0;
-
-        return columnsDef[columnId]->width;
+        return theW;
     }
 
     void TableModel::clearColumnsDef()
@@ -369,11 +378,6 @@ namespace bpp {
     const TableColumn &TableModel::getColumnDef(int columnId) const
     {
         return *columnsDef[columnId];
-    }
-
-    int TableModel::sizeColumnsDef() const
-    {
-        return columnsDef.size();
     }
 
     void TableModel::appendDataVariant(QVector<QVariant> &record, const QVariant &theValue, TableColumn::ColumnType columnType, DataDialect dia)

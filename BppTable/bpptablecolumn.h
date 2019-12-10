@@ -21,7 +21,7 @@ namespace bpp {
             DateTime
         };
 
-        Q_ENUMS(ColumnType)
+        Q_ENUM(ColumnType)
 
         QString title;
         ColumnType type;

@@ -60,11 +60,9 @@ Window {
 
                 CellClicker {
                     grid: bGrid
-                    viewCommand: Enums.CellView.CommandButton
-                    viewId: view
-                    commandId: command
+                    linkEnabled: view === Enums.CellView.CommandButton
                     onDoCommand: {
-                        console.log('Clicked:', commandId, display)
+                        console.log('Clicked:', command, display)
                     }
                 }
             }

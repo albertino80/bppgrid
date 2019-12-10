@@ -58,12 +58,13 @@ namespace bpp {
 
         Q_INVOKABLE int getColWidth(int columnId) const;
         Q_INVOKABLE void clearColumnsDef();
-        Q_INVOKABLE int sizeColumnsDef() const;
         const TableColumn& getColumnDef(int columnId) const;
 
         Q_INVOKABLE int addColumnDef();
         Q_INVOKABLE void setColumnDef(int columnId, bool withDefaults, const QVariantMap& colDef);
         Q_INVOKABLE void endUpdateColumns();
+
+        Q_INVOKABLE bool canHideColumns();
 
     signals:
         void highlightRowChanged();

@@ -296,38 +296,46 @@ Item {
             tview.contentY = 0;
     }
 
+    function appendCol(aColumn, i){
+        var newColumn = {
+            "width": 100,
+            "minWidth": 0,
+            "title": "",
+            "sort": 0,
+            "dataType": BTColumn.Str,
+            "view": 0,
+            "command": 0,
+            "role": "col" + i,
+            "visible": true,
+            "dataRef1": ""
+        };
+
+        if(aColumn.width !== undefined)   newColumn.width = aColumn.width;
+        if(aColumn.minWidth !== undefined)   newColumn.minWidth = aColumn.minWidth;
+        if(aColumn.title !== undefined)   newColumn.title = aColumn.title;
+        if(aColumn.sort !== undefined)   newColumn.sort = aColumn.sort;
+        if(aColumn.dataType !== undefined)   newColumn.dataType = aColumn.dataType;
+        if(aColumn.view !== undefined)   newColumn.view = aColumn.view;
+        if(aColumn.command !== undefined)   newColumn.command = aColumn.command;
+        if(aColumn.role !== undefined && newColumn.role.length > 0)   newColumn.role = aColumn.role;
+        if(aColumn.visible !== undefined)   newColumn.visible = aColumn.visible;
+        if(aColumn.dataRef1 !== undefined)   newColumn.dataRef1 = aColumn.dataRef1;
+
+        if(newColumn.width === 0) newColumn.width = 100;
+        if(!newColumn.visible && !gridDataModel.canHideColumns()){
+            console.log('BppGrid: detected column with visible=false, require Qt 5.13')
+            newColumn.visible = true;
+        }
+
+        columns.append(newColumn);
+    }
+
     function columnsFromListModel(aListModel){
         if(aListModel === null) return;
 
         columns.clear();
         for(var i=0; i<aListModel.count; i++) {
-            var newColumn = {
-                "width": 100,
-                "minWidth": 0,
-                "title": "",
-                "sort": 0,
-                "dataType": BTColumn.Str,
-                "view": 0,
-                "command": 0,
-                "role": "col" + i,
-                "visible": true,
-                "dataRef1": ""
-            };
-
-            if(aListModel.get(i).width !== undefined)   newColumn.width = aListModel.get(i).width;
-            if(aListModel.get(i).minWidth !== undefined)   newColumn.minWidth = aListModel.get(i).minWidth;
-            if(aListModel.get(i).title !== undefined)   newColumn.title = aListModel.get(i).title;
-            if(aListModel.get(i).sort !== undefined)   newColumn.sort = aListModel.get(i).sort;
-            if(aListModel.get(i).dataType !== undefined)   newColumn.dataType = aListModel.get(i).dataType;
-            if(aListModel.get(i).view !== undefined)   newColumn.view = aListModel.get(i).view;
-            if(aListModel.get(i).command !== undefined)   newColumn.command = aListModel.get(i).command;
-            if(aListModel.get(i).role !== undefined && newColumn.role.length > 0)   newColumn.role = aListModel.get(i).role;
-            if(aListModel.get(i).visible !== undefined)   newColumn.visible = aListModel.get(i).visible;
-            if(aListModel.get(i).dataRef1 !== undefined)   newColumn.dataRef1 = aListModel.get(i).dataRef1;
-
-            if(newColumn.width === 0) newColumn.width = 100;
-
-            columns.append(newColumn);
+            appendCol(aListModel.get(i), i);
         }
     }
 
@@ -335,35 +343,8 @@ Item {
         if(jsArray === null) return;
 
         columns.clear();
-
         for(var i=0; i<jsArray.length; i++) {
-            var newColumn = {
-                "width": 100,
-                "minWidth": 0,
-                "title": "",
-                "sort": 0,
-                "dataType": BTColumn.Str,
-                "view": 0,
-                "command": 0,
-                "role": "col" + i,
-                "visible": true,
-                "dataRef1": ""
-            };
-
-            if(jsArray[i].width !== undefined)   newColumn.width = jsArray[i].width;
-            if(jsArray[i].minWidth !== undefined)   newColumn.minWidth = jsArray[i].minWidth;
-            if(jsArray[i].title !== undefined)   newColumn.title = jsArray[i].title;
-            if(jsArray[i].sort !== undefined)   newColumn.sort = jsArray[i].sort;
-            if(jsArray[i].dataType !== undefined)   newColumn.dataType = jsArray[i].dataType;
-            if(jsArray[i].view !== undefined)   newColumn.view = jsArray[i].view;
-            if(jsArray[i].command !== undefined)   newColumn.command = jsArray[i].command;
-            if(jsArray[i].role !== undefined && newColumn.role.length > 0)   newColumn.role = jsArray[i].role;
-            if(jsArray[i].visible !== undefined)   newColumn.visible = jsArray[i].visible;
-            if(jsArray[i].dataRef1 !== undefined)   newColumn.dataRef1 = jsArray[i].dataRef1;
-
-            if(newColumn.width === 0) newColumn.width = 100;
-
-            columns.append(newColumn);
+            appendCol(jsArray[i], i);
         }
     }
 
@@ -373,6 +354,18 @@ Item {
         if(!doFireColumnsChange) return;
 
         var i;
+
+        if(!gridDataModel.canHideColumns()) {
+            doFireColumnsChange = false
+            for(i=0; i<columns.count; i++){
+                if(!columns.get(i).visible) {
+                    console.log('BppGrid: detected column with visible=false, require Qt 5.13')
+                    columns.get(i).visible = true;
+                }
+            }
+            doFireColumnsChange = true;
+        }
+
         if(columns.count > 0 && mainColumn.width > 0){
             var minWidth = 0;
             var toResize = [];
