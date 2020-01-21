@@ -244,10 +244,10 @@ namespace bpp {
                 curRow.reserve( nCols );
 
                 for(int iCol = 0; iCol < nCols; iCol++) {
-                    if(getColumnDef( iCol ).reference1 < 0)
+                    //if(getColumnDef( iCol ).reference1 < 0)
                         appendDataVariant(curRow, query.value(iCol), getColumnDef( iCol ).type, DataDialect::Sqlite);
-                    else
-                        appendDataVariant(curRow, emptyVInt, getColumnDef( iCol ).type, DataDialect::JsonISO);
+                    //else
+                    //    appendDataVariant(curRow, emptyVInt, getColumnDef( iCol ).type, DataDialect::JsonISO);
                 }
             }
             dataVal.shrink_to_fit();
