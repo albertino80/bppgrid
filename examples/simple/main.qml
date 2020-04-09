@@ -2,6 +2,7 @@ import QtQuick 2.12
 import QtQuick.Window 2.12
 import BppTableModel 0.1
 import BppTable 0.1
+import Qt.labs.qmlmodels 1.0
 
 Window {
     visible: true
@@ -19,9 +20,10 @@ Window {
     CompGrid {
         id: bGrid
         anchors.fill: parent
-        anchors.margins: 10
+        anchors.margins: 30
 
         dataHeight: 30
+        showOptionsButton: true
 
         Component {
             id: cellItem
@@ -34,12 +36,6 @@ Window {
                     text: bGrid.formatDisplay(display, dataType, 2)
                     horizontalAlignment: bGrid.getAlign(dataType)
                 }
-
-                /*
-                CellSeparator{
-                    color: bGrid.dataLines
-                }
-                */
 
                 CellClicker {
                     grid: bGrid
