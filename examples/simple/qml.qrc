@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
+        <file>i18n/simple-qml_it_IT.qm</file>
     </qresource>
 </RCC>

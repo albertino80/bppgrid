@@ -8,6 +8,9 @@
 #include <QDate>
 #include <QDateTime>
 
+#include <QClipboard>
+#include <QGuiApplication>
+
 namespace bpp {
 
     TableModel::TableModel():
@@ -298,12 +301,11 @@ namespace bpp {
 
     void TableModel::addRecord(const QList<QVariant>& theData)
     {
-        int iCol;
         int numColumns( columnsDef.size() );
 
         dataVal.push_back(QVector<QVariant>());
         QVector<QVariant>& curRow = dataVal.last();
-        iCol=0;
+        int iCol=0;
         for(auto& theValue: theData){
             if(getColumnDef( iCol ).reference1 < 0)
                 appendDataVariant(curRow, theValue, getColumnDef( iCol ).type, DataDialect::JsonISO);
@@ -349,7 +351,53 @@ namespace bpp {
             return true;
         #else
             return false;
-        #endif
+#endif
+    }
+
+    bool TableModel::copyRowToClipboard(int row) const
+    {
+        QString text = getRowString(row);
+        QClipboard* clipboard = QGuiApplication::clipboard();
+
+        clipboard->setText(text, QClipboard::Clipboard);
+        if (clipboard->supportsSelection()) {
+            clipboard->setText(text, QClipboard::Selection);
+        }
+
+        return true;
+    }
+
+    QString TableModel::getRowString(int row) const
+    {
+        QString toRet;
+
+        toRet.append("{");
+
+        int iCol(0);
+        int appended(0);
+        for(auto col: columnsDef){
+            if(col->command == 0) {
+                if(appended)
+                    toRet.append( ", " );
+                if(col->title.isEmpty())
+                    toRet.append( QString("\"column_%1\": ").arg(iCol + 1) );
+                else
+                    toRet.append( QString("\"%1\": ").arg(col->title) );
+                if(col->type == TableColumn::Str || col->type == TableColumn::Date || col->type == TableColumn::DateTime)
+                {
+                    toRet.append( "\"" );
+                    toRet.append( data( QModelIndex( index(row, iCol) ), Qt::DisplayRole).toString() );
+                    toRet.append( "\"" );
+                }
+                else
+                    toRet.append( data( QModelIndex( index(row, iCol) ), Qt::DisplayRole).toString() );
+                appended++;
+            }
+            iCol++;
+        }
+        toRet.append("}");
+
+        return toRet;
     }
 
     int TableModel::getColWidth(int columnId) const
@@ -512,6 +560,9 @@ namespace bpp {
     {
         if(highlightRow != rowNum) {
             highlightRow = rowNum;
+            emit highlightRowChanged();
+        } else {
+            highlightRow = -1;
             emit highlightRowChanged();
         }
 

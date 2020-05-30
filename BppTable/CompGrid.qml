@@ -5,6 +5,7 @@ import QtQuick.Controls 2.12
 import BppTableModel 0.1
 
 Item {
+    id: mainItem
     property int dataHeight: 30
     property color dataHighlight: "darkturquoise"
     property color dataBkOdd: "#FFFFFF"
@@ -21,6 +22,14 @@ Item {
 
     property string dateFormat: "dd/MM/yyyy"
     property string dateTimeFormat: "dd/MM/yyyy HH:mm:ss"
+
+    property bool showOptionsButton: true
+    property string icoCopy: "qrc:/BppTable/assets/copy-solid.svg"
+    property string ttCopy: qsTr("Copy current row")
+    property string icoOptions: "qrc:/BppTable/assets/cog-solid.svg"
+    property string ttOptions: qsTr("Options")
+    property string icoCancel: "qrc:/BppTable/assets/icon-delete.svg"
+    property string ttCancel: qsTr("Exit")
 
     property var cellDelegate: null
     property int selectedRow: -1
@@ -120,6 +129,7 @@ Item {
     }
 
     Rectangle {
+        id: gridContainer
         border.color: headingsLines
         //border.color: "black"
         color: headingsLines
@@ -203,27 +213,33 @@ Item {
                                     antialiasing: true
                                 }
 
-                                /*
-                                Rectangle{
-                                    anchors.right: parent.right
-                                    anchors.top: parent.top
-                                    anchors.bottom: parent.bottom
-                                    color: headingsLines
-                                    width: 1
-                                }
-                                */
-
                                 MouseArea {
+                                    id: mouseAreaColumn
                                     anchors.fill: parent
-                                    visible: sortIndicator !== 4
-                                    onClicked: {
-                                        var newSort = columns.get(index).sort;
-                                        newSort++;
-                                        if(newSort > 2) newSort = 0;
+                                    acceptedButtons: Qt.LeftButton | Qt.RightButton
 
-                                        gridDataModel.dataNeedSort();
-                                        columns.get(index).sort = newSort;
-                                        gridDataModel.updateLayout();
+                                    onClicked: {
+                                        if(mouse.button === Qt.RightButton) {
+                                            setResizeColumn(index);
+                                        }
+                                        else {
+                                            if(optionsPopup.clickColumnAction === 1 || columnDragger.visible) {
+                                                setResizeColumn(index);
+                                            }
+                                            else {
+                                                if(sortIndicator !== 4) {
+                                                    var newSort = columns.get(index).sort;
+                                                    newSort++;
+                                                    if(newSort > 2) newSort = 0;
+
+                                                    gridDataModel.dataNeedSort();
+                                                    columns.get(index).sort = newSort;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    onPressAndHold: {
+                                        setResizeColumn(index);
                                     }
                                 }
                             }
@@ -276,8 +292,151 @@ Item {
                 }
         }
 
+        Rectangle {
+            id: columnIndicator
+            z:1
+            border.width: 2
+            border.color: dataHighlight
+
+            y:0
+            x: 0
+            height: gridContainer.height
+
+            width: 3
+            visible: false
+        }
+
+        Rectangle {
+            id: columnDragger
+            z:2
+
+            width: draggerSize
+            height: draggerSize
+
+            border.color: "#303030"
+            color: "#C0C0C0"
+            radius: draggerSize / 2
+
+            Image {
+                source: "qrc:/BppTable/assets/arrows-alt-h-solid.svg"
+                anchors.centerIn: parent
+                sourceSize: Qt.size(24,24)
+            }
+
+            DragHandler {
+                yAxis.enabled: false
+                xAxis.minimum: currentResizeLimit
+            }
+
+            onXChanged: {
+                if(visible) {
+                    xDelta = x - xStart
+
+                    timerDrag.restart()
+                    timerDrag.running = true
+                }
+            }
+
+            visible: false
+        }
+
         onWidthChanged: {
             fromColumnListModelToTable(false); //resize columns
+        }
+
+        Popup {
+            id: optionsPopup
+            anchors.centerIn: parent
+            width: 300
+            height: 200
+            modal: true
+            focus: true
+            closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+
+            property int clickColumnAction: 0 //0=sort; 1=resize
+
+            ColumnLayout {
+                anchors.fill: parent
+                Label {
+                    text: qsTr("Tap/Click on column")
+                    font.pointSize: Qt.application.font.pointSize * 1.5
+                    font.bold: true
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    RadioButton {
+                        checked: true
+                        text: qsTr("Sort")
+                        onClicked: optionsPopup.clickColumnAction = 0
+                    }
+                    RadioButton {
+                        text: qsTr("Resize")
+                        onClicked: optionsPopup.clickColumnAction = 1
+                    }
+                }
+
+                Item {
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignCenter
+                    Button {
+                        text: qsTr("Done")
+                        onPressed: optionsPopup.close()
+                    }
+                }
+            }
+        }
+
+        RoundButton {
+            id: btnOptions
+            visible: showOptionsButton
+            anchors.bottom: parent.bottom
+            anchors.right: parent.right
+            anchors.margins: 10
+            z:3
+
+            property string currentIcoOptions: icoOptions
+            property string currentTtOptions: ttOptions
+            property int optionBehaviour: 0; //0=open popup; 1=copy to clipboard; 2 cancel column resize
+
+            icon.source: currentIcoOptions
+            padding: 0
+
+            ToolTip.visible: hovered
+            ToolTip.text: currentTtOptions
+            onPressed: {
+                    if(optionBehaviour === 0)
+                        optionsPopup.open();
+                    else if(optionBehaviour === 1)
+                        gridDataModel.copyRowToClipboard(selectedRow);
+                    else if(optionBehaviour === 2)
+                        setResizeColumn(-1);
+            }
+        }
+    }
+
+    function setOptionIcon() {
+        if(columnIndicator.visible) {
+            btnOptions.optionBehaviour = 2;
+            btnOptions.currentIcoOptions = icoCancel
+            btnOptions.currentTtOptions = ttCancel
+        }
+        else {
+            if(selectedRow === -1) {
+                btnOptions.optionBehaviour = 0;
+                btnOptions.currentIcoOptions = icoOptions
+                btnOptions.currentTtOptions = ttOptions
+            }
+            else {
+                btnOptions.optionBehaviour = 1;
+                btnOptions.currentIcoOptions = icoCopy
+                btnOptions.currentTtOptions = ttCopy
+            }
         }
     }
 
@@ -302,6 +461,83 @@ Item {
     function ensureVisible(){
         if(tview.contentY >= gridDataModel.rowCount() * dataHeight)
             tview.contentY = 0;
+    }
+
+    property int currentResizeColumn: -1
+    property real currentResizePos: 0
+    property real currentResizeLimit: 0
+    property real draggerSize: 30
+    property real xStart: 0
+    property real xDelta: 0
+
+    function recalcDragger() {
+        if(currentResizeColumn == -1) {
+            columnIndicator.visible = false
+            columnDragger.visible = false
+        }
+        else {
+            var curCol = null;
+            var newPos = 0;
+            var newLimit = 0
+            for(var i=0; i<=currentResizeColumn; i++){
+                curCol = columns.get(i);
+                if(curCol.visible) {
+                    newLimit = newPos
+                    newPos += columns.get(i).width;
+                    if(i < columns.count -1) newPos++;
+                }
+            }
+
+            currentResizePos = newPos;
+            currentResizeLimit = newLimit - columnDragger.width / 2;
+
+            columnIndicator.visible = false
+            columnDragger.visible = false
+
+            columnIndicator.x = currentResizePos - columnIndicator.width / 2
+            columnDragger.x = currentResizePos - columnDragger.width / 2
+            columnDragger.y = 40
+            xStart = columnDragger.x
+            xDelta = 0
+
+            columnIndicator.visible = true
+            columnDragger.visible = true
+        }
+        setOptionIcon();
+    }
+
+    function setResizeColumn(index) {
+        if(currentResizeColumn !== index)
+            currentResizeColumn = index;
+        else
+            currentResizeColumn = -1;
+        recalcDragger();
+    }
+
+    Timer {
+        id: timerDrag
+        interval: 200
+        running: false
+        repeat: false
+
+        onTriggered: {
+            if(xDelta >= 1.0 || xDelta <= -1.0) {
+                var oldW = columns.get(currentResizeColumn).width
+                var oldFire = doFireColumnsChange
+                doFireColumnsChange = false
+
+                columns.get(currentResizeColumn).minWidth = 0
+                columns.get(currentResizeColumn).width = oldW + xDelta
+
+                doFireColumnsChange = oldFire
+
+                columnIndicator.x += xDelta
+                xDelta = 0
+                xStart = columnDragger.x
+
+                fromColumnListModelToTable(false);
+            }
+        }
     }
 
     function appendCol(aColumn, i){
@@ -438,6 +674,9 @@ Item {
             gridDataModel.setColumnDef(newCol, resetDefaults, JSON.parse(JSON.stringify(columns.get(i))) )
         }
         gridDataModel.endUpdateColumns( );
+
+        if(currentResizeColumn >= 0)
+            recalcDragger();
     }
 
     Connections {
@@ -447,6 +686,7 @@ Item {
             highlightRect.y = gridDataModel.highlightRow * dataHeight;
             highlightRect.height = dataHeight;
             highlightRect.visible = gridDataModel.highlightRow >= 0
+            setOptionIcon();
         }
     }
 }

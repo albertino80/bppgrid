@@ -67,6 +67,9 @@ namespace bpp {
 
         Q_INVOKABLE bool canHideColumns();
 
+        Q_INVOKABLE bool copyRowToClipboard(int row) const;
+        Q_INVOKABLE QString getRowString(int row) const;
+
     signals:
         void highlightRowChanged();
 
