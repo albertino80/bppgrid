@@ -45,7 +45,8 @@ namespace bpp {
 
         Q_INVOKABLE void addRecord(const QList<QVariant>& theData);
         Q_INVOKABLE bool addFromQuery(const QString& theSqlQuery, const QList<QVariant>& parameters);
-        Q_INVOKABLE bool addFromList(const QVariantList& values);
+        Q_INVOKABLE bool addFromList(const QVariantList& values, bool resetList = true);
+        Q_INVOKABLE void setFrontRecords(const QVariantList& values);
 
         Q_INVOKABLE void setHighlightRow(int rowNum);
         Q_INVOKABLE int getHighlightRow() const;
@@ -87,6 +88,8 @@ namespace bpp {
         int highlightRow;
         QVector< QVector<QVariant> > dataVal;
         QVector<int> dataIndex;
+
+        QVariantList addFrontRecords;
 
         QVariant emptyVString = QVariant(QVariant::String);
         QVariant emptyVDouble = QVariant(QVariant::Double);
