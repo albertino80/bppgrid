@@ -239,6 +239,9 @@ namespace bpp {
 
             beginReset();
 
+            if(!addFrontRecords.isEmpty())
+                allOk = addFromList(addFrontRecords, false);
+
             dataVal.reserve(100);
             int nCols = columnsDef.size();
             while(query.next() && allOk) {
@@ -268,10 +271,10 @@ namespace bpp {
         return allOk;
     }
 
-    bool TableModel::addFromList(const QVariantList &values)
+    bool TableModel::addFromList(const QVariantList &values, bool resetList)
     {
         bool allOk(true);
-        beginReset();
+        if(resetList)   beginReset();
 
         for(auto& curRecord: values){
             const QVariantMap& curValues = curRecord.toMap();
@@ -287,8 +290,13 @@ namespace bpp {
             }
         }
 
-        endReset();
+        if(resetList)   endReset();
         return allOk;
+    }
+
+    void TableModel::setFrontRecords(const QVariantList &values)
+    {
+        addFrontRecords = values;
     }
 
     void TableModel::addRecord(const QList<QVariant>& theData)

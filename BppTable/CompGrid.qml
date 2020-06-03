@@ -61,6 +61,14 @@ Item {
         tview.contentY = 0;
     }
 
+    function setFrontRecords(theArr){
+        gridDataModel.setFrontRecords(theArr);
+    }
+
+    function clearFrontRecords(theArr){
+        gridDataModel.setFrontRecords([]);
+    }
+
     function fillFromArray(theArr){
         gridDataModel.beginReset();
         for(var i = 0; i < theArr.length; i++) {
