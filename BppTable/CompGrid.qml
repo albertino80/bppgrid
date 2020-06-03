@@ -573,6 +573,7 @@ Item {
         for(var i=0; i<aListModel.count; i++) {
             appendCol(aListModel.get(i), i);
         }
+        fromColumnListModelToTable(false);
     }
 
     function columnsFromArray(jsArray){
