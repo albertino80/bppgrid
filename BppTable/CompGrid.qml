@@ -283,7 +283,7 @@ Item {
                         color: "transparent"
                         radius: 5
                         anchors.left: parent.left
-                        anchors.right: parent.right
+                        //anchors.right: parent.right
                         z:2
                         y:0
                         height: 100
@@ -591,6 +591,7 @@ Item {
         for(var i=0; i<jsArray.length; i++) {
             appendCol(jsArray[i], i);
         }
+        fromColumnListModelToTable(false);
     }
 
     property bool doFireColumnsChange: true
@@ -686,6 +687,7 @@ Item {
             selectedRow = gridDataModel.highlightRow
             highlightRect.y = gridDataModel.highlightRow * dataHeight;
             highlightRect.height = dataHeight;
+            highlightRect.width = tview.width
             highlightRect.visible = gridDataModel.highlightRow >= 0
             setOptionIcon();
         }
