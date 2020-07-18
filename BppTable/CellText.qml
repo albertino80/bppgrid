@@ -1,10 +1,10 @@
 import QtQuick 2.0
 
 Text {
-    id: theTxt
+    //id: theTxt
 
-    property alias text: theTxt.text
-    property alias horizontalAlignment: theTxt.horizontalAlignment
+    //property alias text: theTxt.text
+    //property alias horizontalAlignment: theTxt.horizontalAlignment
 
     verticalAlignment: Text.AlignVCenter
     anchors.fill: parent

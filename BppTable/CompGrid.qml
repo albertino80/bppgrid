@@ -10,7 +10,6 @@ Item {
     property color dataHighlight: "darkturquoise"
     property color dataBkOdd: "#FFFFFF"
     property color dataBkEven: "#F6F8FA"
-    property color dataLines: "#E5E5E5"
 
     property int headingsHeight: 30
     property color headingsBk: "#E7E7E7"
