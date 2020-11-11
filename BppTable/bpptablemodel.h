@@ -2,6 +2,7 @@
 #define TABLEMODEL1_H
 
 #include <QObject>
+#include <set>
 #include <QAbstractTableModel>
 #include "bpptabledatabase.h"
 #include "bpptablecolumn.h"
@@ -11,7 +12,9 @@ namespace bpp {
     class TableModel : public QAbstractTableModel
     {
         Q_OBJECT
-        Q_PROPERTY(int highlightRow READ getHighlightRow WRITE setHighlightRow NOTIFY highlightRowChanged)
+        Q_PROPERTY(int highlightRow READ getHighlightRow NOTIFY highlightRowChanged)
+        Q_PROPERTY(bool hasMultiselection READ getHasMultiselection WRITE setHasMultiselection NOTIFY hasMultiselectionChanged)
+        Q_PROPERTY(bool multiselectionMobileMode READ getMultiselectionMobileMode WRITE setMultiselectionMobileMode NOTIFY multiselectionMobileModeChanged)
     public:
 
         enum CustomRoles{
@@ -48,8 +51,11 @@ namespace bpp {
         Q_INVOKABLE bool addFromList(const QVariantList& values, bool resetList = true);
         Q_INVOKABLE void setFrontRecords(const QVariantList& values);
 
-        Q_INVOKABLE void setHighlightRow(int rowNum);
+        Q_INVOKABLE void setHighlightRow(int rowNum, int modifiers);
         Q_INVOKABLE int getHighlightRow() const;
+        Q_INVOKABLE bool isHighlightRow(int rowNum) const;
+        Q_INVOKABLE int countHighlightRows() const;
+        Q_INVOKABLE QVector<int> getHighlightRows() const;
 
         Q_INVOKABLE void dataNeedSort();
         Q_INVOKABLE void updateLayout();
@@ -70,8 +76,16 @@ namespace bpp {
         Q_INVOKABLE bool copyRowToClipboard(int row) const;
         Q_INVOKABLE QString getRowString(int row) const;
 
+        bool getHasMultiselection() const;
+        void setHasMultiselection(bool value);
+
+        bool getMultiselectionMobileMode() const;
+        void setMultiselectionMobileMode(bool value);
+
     signals:
         void highlightRowChanged();
+        void hasMultiselectionChanged();
+        void multiselectionMobileModeChanged();
 
     protected:
         void appendDataVariant(QVector<QVariant>& record, const QVariant& theValue, TableColumn::ColumnType columnType, DataDialect dia);
@@ -89,6 +103,10 @@ namespace bpp {
         QVector<TableColumn*> columnsDef;
 
         int highlightRow;
+        int lastHighlightRow;
+        std::set<int> highlightRows;
+        bool hasMultiselection;
+        bool multiselectionMobileMode;
         QVector< QVector<QVariant> > dataVal;
         QVector<int> dataIndex;
 
@@ -99,6 +117,8 @@ namespace bpp {
         QVariant emptyVInt = QVariant(QVariant::Int);
         QVariant emptyVDate = QVariant(QVariant::Date);
         QVariant emptyVDateTime = QVariant(QVariant::DateTime);
+
+        QVector<int> onlyHighlightRole;
     };
 
 }

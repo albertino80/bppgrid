@@ -12,7 +12,7 @@ MouseArea {
     anchors.fill: parent
     onClicked: {
         if(grid){
-            grid.setSelectedRow(row);
+            grid.setSelectedRow(row, mouse.modifiers);
             if(linkEnabled) {
                 doCommand()
             }

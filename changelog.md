@@ -1,6 +1,23 @@
 # Changelog
 
-## Verision 1.1.0 (9 April 2020)
+## Version 1.2.0 (11 November 2020)
+### Changed row selection indicator
+Now, all selected row have a background color controlled by properties:
+* `property color dataBkSelOdd`
+* `property color dataBkSelEven`
+
+### Add multiselection
+Multiselection can be enabled with
+* `property bool withMultiselection`
+  * false: multiselection not allowed
+  * true: multiselection enabled
+* `property bool withMultiselectionMobileMode`
+  * false: use CTRL ans SHIFT keyboard modifiers for multiselect
+  * true: act as CTRL is always pressed
+
+If multiselection is enabled `withMultiselection=true` then a new bar under columns is visible, `select all none`
+
+## Version 1.1.0 (9 April 2020)
 ### Add option button on grid
 This button can be disabled see `showOptionsButton`
 

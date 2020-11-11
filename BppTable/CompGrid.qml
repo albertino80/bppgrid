@@ -10,6 +10,8 @@ Item {
     property color dataHighlight: "darkturquoise"
     property color dataBkOdd: "#FFFFFF"
     property color dataBkEven: "#F6F8FA"
+    property color dataBkSelOdd: "#40ffa8"
+    property color dataBkSelEven: "#3df5a1"
 
     property int headingsHeight: 30
     property color headingsBk: "#E7E7E7"
@@ -30,6 +32,9 @@ Item {
     property string icoCancel: "qrc:/BppTable/assets/icon-delete.svg"
     property string ttCancel: qsTr("Exit")
 
+    property bool withMultiselection: false
+    property bool withMultiselectionMobileMode: false
+
     property var cellDelegate: null
     property int selectedRow: -1
 
@@ -37,6 +42,8 @@ Item {
     property var fromArray: null
 
     property ListModel columns: ListModel{}
+
+    signal selectionChanged();
 
     function rows(){
         return gridDataModel.rowCount();
@@ -46,12 +53,36 @@ Item {
         return gridDataModel.data( gridDataModel.index(row, col), "display" );
     }
 
-    function setSelectedRow(row) {
-        gridDataModel.setHighlightRow(row);
+    function setSelectedRow(row, modifiers) {
+        if(arguments.length < 2) //no argument [modifiers] provided
+            modifiers = 0;
+        gridDataModel.setHighlightRow(row, modifiers);
+    }
+    function clearSelection(){
+        gridDataModel.setHighlightRow(-1, 0);
+    }
+    function selectAll(){
+        gridDataModel.setHighlightRow(-2, 0);
+    }
+    function countSelection(){
+        return gridDataModel.countHighlightRows();
+    }
+    function getSelectedRows(){
+        return gridDataModel.getHighlightRows();
     }
 
     function getCellBackground(row) {
-        return row % 2 == 0 ? dataBkOdd : dataBkEven;
+        console.log('Warning deprecated function, use getCellBk(row, highlight)')
+    }
+
+    function getCellBk(row, isHilighted) {
+        if(isHilighted){
+            if(row % 2 == 0)    return dataBkSelOdd;
+            return dataBkSelEven;
+        }
+
+        if(row % 2 == 0)    return dataBkOdd;
+        return dataBkEven;
     }
 
     function clearData(){
@@ -251,6 +282,49 @@ Item {
                     }
                 }
 
+                Rectangle {
+                    color: headingsBk
+                    border.color: headingsLines
+                    Layout.fillWidth: true
+                    height: headingsHeight
+                    visible: withMultiselection
+                    RowLayout{
+                        id: selectionPanel
+                        anchors.fill: parent
+                        anchors.margins: 5
+                        Text {
+                            text: qsTr("Select")
+                        }
+                        Repeater {
+                            model: ListModel{
+                                ListElement{
+                                    linkAction: "all"
+                                    linkText: qsTr("All")
+                                }
+                                ListElement{
+                                    linkAction: "none"
+                                    linkText: qsTr("None")
+                                }
+                            }
+                            Text {
+                                text: '<html><a href="%1">%2</a></html>'.arg(linkAction).arg(linkText)
+                                onLinkActivated: {
+                                    if(link === "all")  selectAll();
+                                    else if(link === "none")  clearSelection();
+                                }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    acceptedButtons: Qt.NoButton // we don't want to eat clicks on the Text
+                                    cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                }
+                            }
+                        }
+                        Item {
+                            Layout.fillWidth: true
+                        }
+                    }
+                }
+
                 TableView {
                     id: tview
                     columnSpacing: 1
@@ -275,6 +349,7 @@ Item {
                             headingsFlick.contentX = contentX
                     }
 
+                    /*
                     Rectangle {
                         id: highlightRect
                         border.width: 2
@@ -282,12 +357,14 @@ Item {
                         color: "transparent"
                         radius: 5
                         anchors.left: parent.left
+                        width: tview.width
                         //anchors.right: parent.right
                         z:2
                         y:0
                         height: 100
                         visible: false
                     }
+                    */
                 }
         }
 
@@ -349,7 +426,7 @@ Item {
             width: 300
             height: 200
             modal: true
-            focus: true
+            focus: visible
             closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
 
             property int clickColumnAction: 0 //0=sort; 1=resize
@@ -439,8 +516,11 @@ Item {
         }
     }
 
-    property var gridDataModel: BTModel {
+    property BTModel gridDataModel: BTModel {
+        hasMultiselection: withMultiselection
+        multiselectionMobileMode: withMultiselectionMobileMode
     }
+
 
     Connections{
         target: columns
@@ -684,11 +764,14 @@ Item {
         target: gridDataModel
         onHighlightRowChanged: {
             selectedRow = gridDataModel.highlightRow
+            /*
             highlightRect.y = gridDataModel.highlightRow * dataHeight;
             highlightRect.height = dataHeight;
             highlightRect.width = tview.width
             highlightRect.visible = gridDataModel.highlightRow >= 0
+            */
             setOptionIcon();
+            selectionChanged();
         }
     }
 }

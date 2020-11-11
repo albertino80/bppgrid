@@ -16,7 +16,10 @@ namespace bpp {
     TableModel::TableModel():
         dbRef(&emptyDbRef),
         dataSorted(false),
-        highlightRow(-1)
+        highlightRow(-1),
+        lastHighlightRow(-1),
+        hasMultiselection(false),
+        onlyHighlightRole{CustomRoles::roleHighlight}
     {
     }
 
@@ -49,7 +52,7 @@ namespace bpp {
         case roleCommand:
             return cdef.command;
         case roleHighlight:
-            if(cellIndex.row() == highlightRow)
+            if( highlightRows.count( cellIndex.row() ) )
                 return true;
             return false;
         case roleVisible:
@@ -202,7 +205,7 @@ namespace bpp {
     void TableModel::beginReset()
     {
         emit beginResetModel();
-        setHighlightRow(-1);
+        setHighlightRow(-1, 0);
         dataVal.clear();
         dataIndex.clear();
     }
@@ -546,9 +549,55 @@ namespace bpp {
         return colVal.toString();
     }
 
+    bool TableModel::getMultiselectionMobileMode() const
+    {
+        return multiselectionMobileMode;
+    }
+
+    void TableModel::setMultiselectionMobileMode(bool value)
+    {
+        if(multiselectionMobileMode != value) {
+            multiselectionMobileMode = value;
+            emit multiselectionMobileModeChanged();
+        }
+    }
+
+    bool TableModel::getHasMultiselection() const
+    {
+        return hasMultiselection;
+    }
+
+    void TableModel::setHasMultiselection(bool value)
+    {
+        if(value != hasMultiselection) {
+            hasMultiselection = value;
+            if(!hasMultiselection && highlightRows.size()>1){
+                setHighlightRow(-1, 0);
+            }
+            emit hasMultiselectionChanged();
+        }
+    }
+
     int TableModel::getHighlightRow() const
     {
         return highlightRow;
+    }
+
+    bool TableModel::isHighlightRow(int rowNum) const
+    {
+        return highlightRows.count(rowNum)>0;
+    }
+
+    int TableModel::countHighlightRows() const
+    {
+        return highlightRows.size();
+    }
+
+    QVector<int> TableModel::getHighlightRows() const
+    {
+        QVector<int> toRet;
+        for(auto curRow: highlightRows) toRet.push_back(curRow);
+        return toRet;
     }
 
     void TableModel::dataNeedSort()
@@ -556,24 +605,101 @@ namespace bpp {
         dataSorted = false;
     }
 
-    void TableModel::setHighlightRow(int rowNum)
+    void TableModel::setHighlightRow(int rowNum, int modifiers)
     {
-        if(highlightRow != rowNum) {
-            highlightRow = rowNum;
-            emit highlightRowChanged();
-        } else {
-            highlightRow = -1;
-            emit highlightRowChanged();
+        bool pressedCtrl = modifiers & Qt::ControlModifier;
+        bool pressedShift = modifiers & Qt::ShiftModifier;
+
+        bool fireRowChanged(false);
+        int minRow(-1), maxRow(-1);
+
+        if(multiselectionMobileMode) pressedCtrl = true;
+
+        if(highlightRows.count(rowNum)) {
+            if(!hasMultiselection || pressedCtrl || highlightRows.size() == 1) {
+                //deselect it
+                highlightRows.erase(rowNum);
+                if(highlightRows.empty())
+                    highlightRow = -1;
+                else
+                    highlightRow = *highlightRows.begin();
+                fireRowChanged = true;
+                minRow = rowNum; maxRow = rowNum;
+                lastHighlightRow = -1;
+            }
+            else {
+                if(hasMultiselection) {
+                    minRow = *highlightRows.begin();
+                    maxRow = *highlightRows.rbegin();
+                    highlightRows.clear();
+                    highlightRows.insert(rowNum);
+                    highlightRow = rowNum;
+                    lastHighlightRow = rowNum;
+                    fireRowChanged = true;
+                }
+            }
+        }
+        else {
+            if(rowNum == -1) {
+                //select none
+                if(!highlightRows.empty()) {
+                    //clear selection
+                    minRow = *highlightRows.begin();
+                    maxRow = *highlightRows.rbegin();
+                    highlightRows.clear();
+                    highlightRow = -1;
+                    lastHighlightRow = -1;
+                    fireRowChanged = true;
+                }
+            }
+            else if(rowNum == -2) {
+                //select all
+                for(int irow=0; irow<dataVal.size(); irow++){
+                    highlightRows.insert(irow);
+                }
+                fireRowChanged = true;
+                highlightRow = dataVal.size()-1;
+                lastHighlightRow = dataVal.size()-1;
+                minRow = *highlightRows.begin();
+                maxRow = *highlightRows.rbegin();
+            }
+            else {
+                if(!hasMultiselection || (!pressedCtrl && !pressedShift)) {
+                    if(!highlightRows.empty()) {
+                        minRow = *highlightRows.begin();
+                        maxRow = *highlightRows.rbegin();
+                        highlightRows.clear();
+                    }
+                }
+                if(!hasMultiselection || !pressedShift || lastHighlightRow == -1)
+                    highlightRows.insert(rowNum);
+                else {
+                    int fromRow = lastHighlightRow;
+                    int toRow = rowNum;
+                    if(fromRow > toRow) std::swap(fromRow, toRow);
+                    minRow = fromRow;
+                    maxRow = toRow;
+                    while(fromRow <= toRow) {
+                        highlightRows.insert(fromRow);
+                        fromRow++;
+                    }
+                }
+
+                highlightRow = rowNum;
+                lastHighlightRow = rowNum;
+                fireRowChanged = true;
+                if(minRow < 0 || rowNum < minRow) minRow = rowNum;
+                if(maxRow < 0 || rowNum > maxRow) maxRow = rowNum;
+            }
         }
 
-        /*
-        QList<QPersistentModelIndex> cells;
-        for(int i = 0; i < columnCount(QModelIndex()); i++){
-            cells.append( QModelIndex(index(rowNum, i)) );
+        if(fireRowChanged) {
+            emit highlightRowChanged();
+            if(minRow != -1) {
+                //qDebug() << rowNum << minRow << maxRow;
+                emit dataChanged(QModelIndex(index(minRow, 0)), QModelIndex(index(maxRow, columnsDef.size() - 1)), onlyHighlightRole);
+            }
         }
-
-        emit layoutChanged(cells);
-        */
     }
 
 }
