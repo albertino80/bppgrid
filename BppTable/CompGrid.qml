@@ -73,6 +73,7 @@ Item {
 
     function getCellBackground(row) {
         console.log('Warning deprecated function, use getCellBk(row, highlight)')
+        return dataBkOdd;
     }
 
     function getCellBk(row, isHilighted) {
@@ -114,8 +115,9 @@ Item {
         ensureVisible();
     }
 
-    function fillFromJson(theJson){
-        gridDataModel.addFromList(theJson);
+    function fillFromJson(theJson, resetList){
+        if(arguments.length < 2) resetList = true;
+        gridDataModel.addFromList(theJson, resetList);
         ensureVisible();
     }
 

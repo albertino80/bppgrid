@@ -34,6 +34,12 @@ ApplicationWindow {
             enabled: chkMultiselection.checked
             text: "Mobile mode"
         }
+        Button{
+            text: qsTr("More data")
+            onPressed: {
+                bGrid.fillFromJson(fruitList, false);
+            }
+        }
 
         Item{ Layout.fillWidth: true }
         Text {

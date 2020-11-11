@@ -30,7 +30,7 @@ Window {
 
             Rectangle {
                 implicitHeight: bGrid.dataHeight
-                color: bGrid.getCellBackground(row)
+                color: bGrid.getCellBk(row, highlight)
 
                 CellText {
                     text: bGrid.formatDisplay(display, dataType, 2)

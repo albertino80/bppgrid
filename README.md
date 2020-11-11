@@ -8,6 +8,8 @@ Developed with Qt 5.12.3
 
 ![Image of bppgrid](examples/bppgrid.png)
 
+[Other Example!](https://dev.bigno.it/bppgrid/multiselection.gif)
+
 ### How to start a new project
 
 * in your project **.pro** add :
@@ -79,7 +81,7 @@ Window {
 
             Rectangle {
                 implicitHeight: bGrid.dataHeight
-                color: bGrid.getCellBackground(row)
+                color: bGrid.getCellBk(row, highlight)
 
                 CellText {
                     text: bGrid.formatDisplay(display, dataType, 2)

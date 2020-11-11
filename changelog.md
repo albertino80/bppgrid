@@ -7,6 +7,8 @@ Now, all selected row have a background color controlled by properties:
 * `property color dataBkSelEven`
 
 ### Add multiselection
+[Example!](https://dev.bigno.it/bppgrid/multiselection.gif)
+
 Multiselection can be enabled with
 * `property bool withMultiselection`
   * false: multiselection not allowed
@@ -16,6 +18,8 @@ Multiselection can be enabled with
   * true: act as CTRL is always pressed
 
 If multiselection is enabled `withMultiselection=true` then a new bar under columns is visible, `select all none`
+
+*WARNING* Deprecated function `getCellBackground(row)` now use: `getCellBk(row, highlight)`
 
 ## Version 1.1.0 (9 April 2020)
 ### Add option button on grid

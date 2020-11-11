@@ -141,6 +141,7 @@ Window {
             id: bGrid
             Layout.fillWidth: true
             Layout.fillHeight: true
+            withMultiselection: true
 
             dataHeight: 40
             dateFormat: "MMM yyyy"
@@ -151,7 +152,7 @@ Window {
                 Rectangle {
                     id: cellContainer
                     implicitHeight: bGrid.dataHeight
-                    color: row % 2 == 0 ? bGrid.dataBkOdd : bGrid.dataBkEven
+                    color: bGrid.getCellBk(row, highlight)
                     visible: model.visible
 
                     CellText {

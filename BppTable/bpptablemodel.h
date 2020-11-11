@@ -43,7 +43,7 @@ namespace bpp {
 
         Q_INVOKABLE void sortData();
 
-        Q_INVOKABLE void beginReset();
+        Q_INVOKABLE void beginReset(bool appendMode);
         Q_INVOKABLE void endReset();
 
         Q_INVOKABLE void addRecord(const QList<QVariant>& theData);

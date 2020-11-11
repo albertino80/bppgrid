@@ -29,7 +29,7 @@ Window {
 
             Rectangle {
                 implicitHeight: bGrid.dataHeight
-                color: bGrid.getCellBackground(row)
+                color: bGrid.getCellBk(row, highlight)
 
                 CellText {
                     visible: view === Enums.CellView.SimpleText

@@ -95,6 +95,7 @@ namespace bpp {
                     dataSorted = true;
                 }
                 else {
+                    setHighlightRow(-1, 0);
                     emit beginResetModel();
                     dataIndex.clear();
                     dataSorted = true;
@@ -109,6 +110,7 @@ namespace bpp {
                 return;
             }
 
+            setHighlightRow(-1, 0);
             dataIndex.fill(0, dataVal.size());
             std::iota(dataIndex.begin(), dataIndex.end(), 0);
 
@@ -202,12 +204,14 @@ namespace bpp {
         }
     }
 
-    void TableModel::beginReset()
+    void TableModel::beginReset(bool appendMode)
     {
         emit beginResetModel();
-        setHighlightRow(-1, 0);
-        dataVal.clear();
-        dataIndex.clear();
+        if(!appendMode) {
+            dataVal.clear();
+            dataIndex.clear();
+        }
+        dataSorted = false;
     }
 
     void TableModel::endReset()
@@ -240,7 +244,7 @@ namespace bpp {
         bool allOk(true);
         if(query.exec()) {
 
-            beginReset();
+            beginReset(false);
 
             if(!addFrontRecords.isEmpty())
                 allOk = addFromList(addFrontRecords, false);
@@ -277,7 +281,8 @@ namespace bpp {
     bool TableModel::addFromList(const QVariantList &values, bool resetList)
     {
         bool allOk(true);
-        if(resetList)   beginReset();
+        //if(resetList)
+            beginReset(!resetList);
 
         for(auto& curRecord: values){
             const QVariantMap& curValues = curRecord.toMap();
@@ -293,7 +298,8 @@ namespace bpp {
             }
         }
 
-        if(resetList)   endReset();
+        //if(resetList)
+            endReset();
         return allOk;
     }
 
