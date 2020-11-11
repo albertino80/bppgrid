@@ -19,7 +19,7 @@ Item {
     //property color headingsTextColor: "#313131"
     property color headingsTextColor: "black"
     property color headingsSortColor: "#000099"
-    property color headingsNoSortColor: "#888888"
+    property color headingsNoSortColor: "#777777"
 
     property string dateFormat: "dd/MM/yyyy"
     property string dateTimeFormat: "dd/MM/yyyy HH:mm:ss"
@@ -296,6 +296,7 @@ Item {
                         anchors.margins: 5
                         Text {
                             text: qsTr("Select")
+                            color: headingsTextColor
                         }
                         Repeater {
                             model: ListModel{
@@ -310,6 +311,7 @@ Item {
                             }
                             Text {
                                 text: '<html><a href="%1">%2</a></html>'.arg(linkAction).arg(linkText)
+                                linkColor: headingsTextColor
                                 onLinkActivated: {
                                     if(link === "all")  selectAll();
                                     else if(link === "none")  clearSelection();

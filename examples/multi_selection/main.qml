@@ -150,8 +150,9 @@ ApplicationWindow {
         onSelectionChanged: {
             numSelected.text = bGrid.countSelection();
             var selRows = bGrid.getSelectedRows();
-            const strs = Array.from(selRows.join(``));
-            rowsSelected.text = strs + " ";
+            var str = ""
+            for(var i=0; i<selRows.length; i++) str += selRows[i] + ",";
+            rowsSelected.text = str;
         }
 
         //the following block is only for display key modifier text, not necessary in real usage

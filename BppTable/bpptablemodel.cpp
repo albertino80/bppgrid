@@ -90,12 +90,12 @@ namespace bpp {
     {
         if(!dataSorted) {
             if(sortColumns.isEmpty()) {
+                setHighlightRow(-1, 0);
                 if(dataIndex.isEmpty()) {
                     //nothing to do
                     dataSorted = true;
                 }
                 else {
-                    setHighlightRow(-1, 0);
                     emit beginResetModel();
                     dataIndex.clear();
                     dataSorted = true;
@@ -209,7 +209,7 @@ namespace bpp {
         emit beginResetModel();
         if(!appendMode) {
             dataVal.clear();
-            dataIndex.clear();
+            //dataIndex.clear();
         }
         dataSorted = false;
     }
@@ -666,8 +666,10 @@ namespace bpp {
                 fireRowChanged = true;
                 highlightRow = dataVal.size()-1;
                 lastHighlightRow = dataVal.size()-1;
-                minRow = *highlightRows.begin();
-                maxRow = *highlightRows.rbegin();
+                if(!highlightRows.empty()) {
+                    minRow = *highlightRows.begin();
+                    maxRow = *highlightRows.rbegin();
+                }
             }
             else {
                 if(!hasMultiselection || (!pressedCtrl && !pressedShift)) {
