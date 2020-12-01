@@ -87,7 +87,7 @@ Item {
     }
 
     function clearData(){
-        gridDataModel.beginReset();
+        gridDataModel.beginReset(false);
         gridDataModel.endReset();
         tview.contentY = 0;
     }
@@ -101,7 +101,7 @@ Item {
     }
 
     function fillFromArray(theArr){
-        gridDataModel.beginReset();
+        gridDataModel.beginReset(false);
         for(var i = 0; i < theArr.length; i++) {
             gridDataModel.addRecord(theArr[i]);
         }
