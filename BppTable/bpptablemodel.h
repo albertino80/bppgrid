@@ -66,6 +66,7 @@ namespace bpp {
         Q_INVOKABLE int getColWidth(int columnId) const;
         Q_INVOKABLE void clearColumnsDef();
         const TableColumn& getColumnDef(int columnId) const;
+        Q_INVOKABLE int getColumnId(const QString& columnRole);
 
         Q_INVOKABLE int addColumnDef();
         Q_INVOKABLE void setColumnDef(int columnId, bool withDefaults, const QVariantMap& colDef);
@@ -75,6 +76,8 @@ namespace bpp {
 
         Q_INVOKABLE bool copyRowToClipboard(int row) const;
         Q_INVOKABLE QString getRowString(int row) const;
+
+        Q_INVOKABLE bool setCellValue(int rowNum, int columnNum, const QVariant& data);
 
         bool getHasMultiselection() const;
         void setHasMultiselection(bool value);
@@ -97,9 +100,11 @@ namespace bpp {
         TableDatabase emptyDbRef;
         TableDatabase* dbRef;
 
-        bool dataSorted;
+        bool dataChangedALS;    //new rows added or removed, After Last Sort
+        bool columnsChangedALS; //new columns added or removed, After Last Sort
+        bool sortedChangedALS;  //to sort colmumn list changed, After Last Sort
 
-        QVector<int> sortColumns;
+        QVector<int> sortColumns;   //column ordinal, starting from 1 (not 0!)
         QVector<TableColumn*> columnsDef;
 
         int highlightRow;

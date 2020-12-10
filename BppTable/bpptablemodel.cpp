@@ -15,7 +15,9 @@ namespace bpp {
 
     TableModel::TableModel():
         dbRef(&emptyDbRef),
-        dataSorted(false),
+        dataChangedALS(false),
+        columnsChangedALS(false),
+        sortedChangedALS(false),
         highlightRow(-1),
         lastHighlightRow(-1),
         hasMultiselection(false),
@@ -88,119 +90,117 @@ namespace bpp {
 
     void TableModel::sortData()
     {
-        if(!dataSorted) {
-            if(sortColumns.isEmpty()) {
-                setHighlightRow(-1, 0);
-                if(dataIndex.isEmpty()) {
-                    //nothing to do
-                    dataSorted = true;
-                }
-                else {
-                    emit beginResetModel();
-                    dataIndex.clear();
-                    dataSorted = true;
-                    emit endResetModel();
-                }
-                return;
-            }
-
-            if(dataVal.isEmpty()) {
-                //nothing to do
-                dataSorted = true;
-                return;
-            }
-
+        if(dataChangedALS || columnsChangedALS || sortedChangedALS) {
             setHighlightRow(-1, 0);
-            dataIndex.fill(0, dataVal.size());
-            std::iota(dataIndex.begin(), dataIndex.end(), 0);
 
-            QVector< QPair<int,bool> > sortIndexes;
-            for(auto sortCol: sortColumns) {
-                bool orderAsc(true);
-                int iCol = sortCol;
-                if(iCol < 0) {
-                    orderAsc = false;
-                    iCol = -iCol;
+            bool doSort(true);
+            if(dataVal.isEmpty()) doSort = false;
+
+            if(doSort) {
+                if(sortColumns.isEmpty()){ //no sort
+                    doSort = false;
+                    if(!dataIndex.isEmpty()) {
+                        emit beginResetModel();
+                        dataIndex.clear();
+                        emit endResetModel();
+                    }
                 }
-
-                //-1 because sortColumns value starts from 1 for the first column
-                sortIndexes.push_back( QPair<int,bool>(iCol - 1, orderAsc) );
             }
 
-            emit beginResetModel();
-            std::sort(dataIndex.begin(), dataIndex.end(), [&](int indexA, int indexB) {
+            if(doSort) {
+                dataIndex.fill(0, dataVal.size());
+                std::iota(dataIndex.begin(), dataIndex.end(), 0);
 
-                const QVector<QVariant>& recordA = dataVal[indexA];
-                const QVector<QVariant>& recordB = dataVal[indexB];
-                for(auto sortCol: sortIndexes) {
-                    bool orderAsc(sortCol.second);
-                    int iCol(sortCol.first);
-
-                    const QVariant& valA = recordA[iCol];
-                    const QVariant& valB = recordB[iCol];
-
-                    if(valA.isNull() && !valB.isNull())
-                        return orderAsc;
-                    if(valB.isNull() && !valA.isNull())
-                        return !orderAsc;
-
-                    switch (getColumnDef( iCol ).type) {
-                    case TableColumn::Str:
-                        if(valA.toString().compare(valB.toString(), Qt::CaseInsensitive) == 0)
-                            continue;
-                        break;
-                    case TableColumn::Dbl:
-                        if( fabs(valA.toDouble() - valB.toDouble()) < double(FLT_EPSILON) )
-                            continue;
-                        break;
-                    case TableColumn::Int:
-                        if( valA.toInt() == valB.toInt() )
-                            continue;
-                        break;
-                    case TableColumn::Date:
-                        if( valA.toDate() == valB.toDate() )
-                            continue;
-                        break;
-                    case TableColumn::DateTime:
-                        if( valA.toDateTime() == valB.toDateTime() )
-                            continue;
-                        break;
+                QVector< QPair<int,bool> > sortIndexes;
+                for(auto sortCol: sortColumns) {
+                    bool orderAsc(true);
+                    int iCol = sortCol;
+                    if(iCol < 0) {
+                        orderAsc = false;
+                        iCol = -iCol;
                     }
 
-                    if(orderAsc){
-                        switch (getColumnDef( iCol ).type) {
-                        case TableColumn::Str:
-                            return valA.toString().compare(valB.toString(), Qt::CaseInsensitive) < 0;
-                        case TableColumn::Dbl:
-                            return valA.toDouble() < valB.toDouble();
-                        case TableColumn::Int:
-                            return valA.toInt() < valB.toInt();
-                        case TableColumn::Date:
-                            return valA.toDate() < valB.toDate();
-                        case TableColumn::DateTime:
-                            return valA.toDateTime() < valB.toDateTime();
-                        }
-                    }
-                    else {
-                        switch (getColumnDef( iCol ).type) {
-                        case TableColumn::Str:
-                            return valA.toString().compare(valB.toString(), Qt::CaseInsensitive) > 0;
-                        case TableColumn::Dbl:
-                            return valA.toDouble() > valB.toDouble();
-                        case TableColumn::Int:
-                            return valA.toInt() > valB.toInt();
-                        case TableColumn::Date:
-                            return valA.toDate() > valB.toDate();
-                        case TableColumn::DateTime:
-                            return valA.toDateTime() > valB.toDateTime();
-                        }
-                    }
+                    //-1 because sortColumns value starts from 1 for the first column
+                    sortIndexes.push_back( QPair<int,bool>(iCol - 1, orderAsc) );
                 }
-                return false;
-            });
-            dataSorted = true;
 
-            emit endResetModel();
+                emit beginResetModel();
+                std::sort(dataIndex.begin(), dataIndex.end(), [&](int indexA, int indexB) {
+
+                    const QVector<QVariant>& recordA = dataVal[indexA];
+                    const QVector<QVariant>& recordB = dataVal[indexB];
+                    for(auto sortCol: sortIndexes) {
+                        bool orderAsc(sortCol.second);
+                        int iCol(sortCol.first);
+
+                        const QVariant& valA = recordA[iCol];
+                        const QVariant& valB = recordB[iCol];
+
+                        if(valA.isNull() && !valB.isNull())
+                            return orderAsc;
+                        if(valB.isNull() && !valA.isNull())
+                            return !orderAsc;
+
+                        switch (getColumnDef( iCol ).type) {
+                        case TableColumn::Str:
+                            if(valA.toString().compare(valB.toString(), Qt::CaseInsensitive) == 0)
+                                continue;
+                            break;
+                        case TableColumn::Dbl:
+                            if( fabs(valA.toDouble() - valB.toDouble()) < double(FLT_EPSILON) )
+                                continue;
+                            break;
+                        case TableColumn::Int:
+                            if( valA.toInt() == valB.toInt() )
+                                continue;
+                            break;
+                        case TableColumn::Date:
+                            if( valA.toDate() == valB.toDate() )
+                                continue;
+                            break;
+                        case TableColumn::DateTime:
+                            if( valA.toDateTime() == valB.toDateTime() )
+                                continue;
+                            break;
+                        }
+
+                        if(orderAsc){
+                            switch (getColumnDef( iCol ).type) {
+                            case TableColumn::Str:
+                                return valA.toString().compare(valB.toString(), Qt::CaseInsensitive) < 0;
+                            case TableColumn::Dbl:
+                                return valA.toDouble() < valB.toDouble();
+                            case TableColumn::Int:
+                                return valA.toInt() < valB.toInt();
+                            case TableColumn::Date:
+                                return valA.toDate() < valB.toDate();
+                            case TableColumn::DateTime:
+                                return valA.toDateTime() < valB.toDateTime();
+                            }
+                        }
+                        else {
+                            switch (getColumnDef( iCol ).type) {
+                            case TableColumn::Str:
+                                return valA.toString().compare(valB.toString(), Qt::CaseInsensitive) > 0;
+                            case TableColumn::Dbl:
+                                return valA.toDouble() > valB.toDouble();
+                            case TableColumn::Int:
+                                return valA.toInt() > valB.toInt();
+                            case TableColumn::Date:
+                                return valA.toDate() > valB.toDate();
+                            case TableColumn::DateTime:
+                                return valA.toDateTime() > valB.toDateTime();
+                            }
+                        }
+                    }
+                    return false;
+                });
+
+                emit endResetModel();
+            }
+            dataChangedALS = false;
+            columnsChangedALS = false;
+            sortedChangedALS = false;
         }
     }
 
@@ -211,7 +211,7 @@ namespace bpp {
             dataVal.clear();
             //dataIndex.clear();
         }
-        dataSorted = false;
+        dataChangedALS = true;
     }
 
     void TableModel::endReset()
@@ -312,6 +312,7 @@ namespace bpp {
     {
         int numColumns( columnsDef.size() );
 
+        dataChangedALS = true;
         dataVal.push_back(QVector<QVariant>());
         QVector<QVariant>& curRow = dataVal.last();
         int iCol=0;
@@ -409,6 +410,30 @@ namespace bpp {
         return toRet;
     }
 
+    bool TableModel::setCellValue(int rowNum, int columnNum, const QVariant &data)
+    {
+        if(rowNum < 0 || rowNum >= dataVal.size())
+            return false;
+        if(columnNum < 0 || columnNum >= columnsDef.size())
+            return false;
+
+        int whatRow = rowNum;
+        if(!dataIndex.isEmpty())
+            whatRow = dataIndex[whatRow];
+
+        if(sortColumns.contains(columnNum + 1) || sortColumns.contains(-(columnNum + 1))){
+            //data need to be resorted
+            beginReset(true);
+            dataVal[whatRow][columnNum] = data;
+            endReset();
+        }
+        else {
+            dataVal[whatRow][columnNum] = data;
+            emit dataChanged( QModelIndex( index(whatRow, columnNum) ),  QModelIndex( index(whatRow, columnNum) ), {Qt::DisplayRole});
+        }
+        return true;
+    }
+
     int TableModel::getColWidth(int columnId) const
     {
         int theW(0);
@@ -426,12 +451,14 @@ namespace bpp {
             delete col;
         }
         columnsDef.clear();
+        columnsChangedALS = true;
     }
 
     int TableModel::addColumnDef()
     {
         int newCol(columnsDef.size());
         columnsDef.push_back( new TableColumn() );
+        columnsChangedALS = true;
         return newCol;
     }
 
@@ -443,6 +470,18 @@ namespace bpp {
     const TableColumn &TableModel::getColumnDef(int columnId) const
     {
         return *columnsDef[columnId];
+    }
+
+    int TableModel::getColumnId(const QString &columnRole)
+    {
+        int columnNum = -1;
+        for(int iCol = 0; iCol < columnsDef.size(); iCol++) {
+            if (columnRole == columnsDef[iCol]->role) {
+                columnNum = iCol;
+                break;
+            }
+        }
+        return columnNum;
     }
 
     void TableModel::appendDataVariant(QVector<QVariant> &record, const QVariant &theValue, TableColumn::ColumnType columnType, DataDialect dia)
@@ -498,15 +537,17 @@ namespace bpp {
 
     void TableModel::calcSortColumns()
     {
-        sortColumns.clear();
-        dataSorted = false;
-
+        QVector<int> newSortColumns;
         for(int i = 0; i < columnsDef.size(); i++){
             int sortVal = getColumnDef(i).sortFlag;
             if(sortVal == 1)
-                sortColumns.push_back(i+1);
+                newSortColumns.push_back(i+1);
             if(sortVal == 2)
-                sortColumns.push_back(-(i+1));
+                newSortColumns.push_back(-(i+1));
+        }
+        if(newSortColumns != sortColumns) {
+            sortColumns = newSortColumns;
+            sortedChangedALS = true;
         }
     }
 
@@ -608,7 +649,7 @@ namespace bpp {
 
     void TableModel::dataNeedSort()
     {
-        dataSorted = false;
+        columnsChangedALS = true;
     }
 
     void TableModel::setHighlightRow(int rowNum, int modifiers)

@@ -8,8 +8,6 @@ Developed with Qt 5.12.3
 
 ![Image of bppgrid](examples/bppgrid.png)
 
-[Other Example!](https://dev.bigno.it/bppgrid/multiselection.gif)
-
 ### How to start a new project
 
 * in your project **.pro** add :
@@ -126,6 +124,14 @@ Window {
   * fill table from a Db with SQL
   * example Date/DateTime column
   * example of column edit (change column text and visibility)
+* **multi_selection**:
+	* [Example](https://dev.bigno.it/bppgrid/multiselection.gif)
+	* work with multiselection
+	* multiselection mobile mode
+	* update cell content
+
+### Warnings
+With QT >= 5.15, it prints warning message ```QML Connections: Implicitly defined onFoo properties in Connections are deprecated.```, but I cannot use new sintax because I need compatibility with Qt 5.12. Consider ``` QT_LOGGING_RULES="qt.qml.connections=false"```
 
 ### Features
 TODO: write list

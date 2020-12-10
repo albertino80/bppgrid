@@ -40,6 +40,15 @@ ApplicationWindow {
                 bGrid.fillFromJson(fruitList, false);
             }
         }
+        Button{
+            text: qsTr("Progress")
+            onPressed: {
+                var oldVal = bGrid.cellValue(1, "prog");
+                var newVal = (oldVal + 10) % 100;
+                bGrid.setCellValue(1, "prog", newVal)
+            }
+        }
+
 
         Item{ Layout.fillWidth: true }
         Text {

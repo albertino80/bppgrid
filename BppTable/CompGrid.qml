@@ -50,7 +50,33 @@ Item {
     }
 
     function cellValue(row, col){
-        return gridDataModel.data( gridDataModel.index(row, col), "display" );
+
+        var colId = 0;
+        if (typeof col === 'string') {
+            colId = gridDataModel.getColumnId(col);
+            if(colId < 0) {
+                console.log("WARNING bpp::grid setCellValue(%1,%2,%3) Column not found".arg(row).arg(col).arg(newCellVal));
+                return 0;
+            }
+        }
+        else
+            colId = col;
+
+        return gridDataModel.data( gridDataModel.index(row, colId), "display" );
+    }
+
+    function setCellValue(row, col, newCellVal){
+        if (typeof col === 'string') {
+            var colId = gridDataModel.getColumnId(col);
+            if(colId >= 0)
+                gridDataModel.setCellValue(row, colId, newCellVal);
+            else {
+                console.log("WARNING bpp::grid setCellValue(%1,%2,%3) Column not found".arg(row).arg(col).arg(newCellVal));
+            }
+        }
+        else {
+            gridDataModel.setCellValue(row, col, newCellVal);
+        }
     }
 
     function setSelectedRow(row, modifiers) {
@@ -264,6 +290,9 @@ Item {
                                                     newSort++;
                                                     if(newSort > 2) newSort = 0;
 
+                                                    // for performance speedup
+                                                    verticalScrollbar.setPosition(0);
+
                                                     gridDataModel.dataNeedSort();
                                                     columns.get(index).sort = newSort;
                                                 }
@@ -346,7 +375,9 @@ Item {
                     delegate: cellDelegate
 
                     ScrollBar.horizontal: ScrollBar { orientation: Qt.Horizontal }
-                    ScrollBar.vertical: ScrollBar { }
+                    ScrollBar.vertical: ScrollBar {
+                        id: verticalScrollbar
+                    }
 
                     onContentXChanged: {
                         if(contentX >= 0 && headingsFlick.contentX !== contentX)
@@ -525,11 +556,10 @@ Item {
         multiselectionMobileMode: withMultiselectionMobileMode
     }
 
-
     Connections{
         target: columns
         onDataChanged: {
-            fromColumnListModelToTable(false);
+            fromColumnListModelToTable(true);
         }
     }
 
@@ -664,7 +694,7 @@ Item {
         for(var i=0; i<aListModel.count; i++) {
             appendCol(aListModel.get(i), i);
         }
-        fromColumnListModelToTable(false);
+        fromColumnListModelToTable(true);
     }
 
     function columnsFromArray(jsArray){
@@ -674,11 +704,11 @@ Item {
         for(var i=0; i<jsArray.length; i++) {
             appendCol(jsArray[i], i);
         }
-        fromColumnListModelToTable(false);
+        fromColumnListModelToTable(true);
     }
 
     property bool doFireColumnsChange: true
-    function fromColumnListModelToTable(resetDefaults){
+    function fromColumnListModelToTable(renewColumns){
         if(!columns) return;
         if(!doFireColumnsChange) return;
 
@@ -753,12 +783,20 @@ Item {
             }
         }
 
-        gridDataModel.clearColumnsDef();
-        for(i=0; i<columns.count; i++) {
-            var newCol = gridDataModel.addColumnDef();
-            gridDataModel.setColumnDef(newCol, resetDefaults, JSON.parse(JSON.stringify(columns.get(i))) )
+        if(renewColumns) {
+            gridDataModel.clearColumnsDef();
+            for(i=0; i<columns.count; i++) {
+                var newCol = gridDataModel.addColumnDef();
+                gridDataModel.setColumnDef(newCol, false, JSON.parse(JSON.stringify(columns.get(i))) )
+            }
+            gridDataModel.endUpdateColumns( );
         }
-        gridDataModel.endUpdateColumns( );
+        else {
+            for(i=0; i<columns.count; i++) {
+                gridDataModel.setColumnDef(i, false, JSON.parse(JSON.stringify(columns.get(i))) )
+            }
+            gridDataModel.endUpdateColumns( );
+        }
 
         if(currentResizeColumn >= 0)
             recalcDragger();
