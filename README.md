@@ -127,6 +127,10 @@ Window {
 	* work with multiselection
 	* multiselection mobile mode
 	* update cell content
+* **color_grid**:
+	* [Example](https://dev.bigno.it/bppgrid/color_grid.gif)
+	* Use some BppFa controls (BppPane, BppMsgBox, BppGrid, BppColorPickerDialog)
+	* Material theme, customizable
 
 ### Warnings
 With QT >= 5.15, it prints warning message ```QML Connections: Implicitly defined onFoo properties in Connections are deprecated.```, but I cannot use new sintax because I need compatibility with Qt 5.12. Consider ``` QT_LOGGING_RULES="qt.qml.connections=false"```

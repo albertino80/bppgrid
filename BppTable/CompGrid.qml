@@ -223,7 +223,7 @@ Item {
 
                     RowLayout {
                         id: headings
-                        Layout.fillWidth: true
+                        //Layout.fillWidth: true
                         spacing: 1
 
                         Repeater {
@@ -282,33 +282,7 @@ Item {
                                     hoverEnabled: true
                                     property bool isHovered: false
 
-                                    onClicked: {
-                                        setResizeColumn(index);
-//                                        if(mouse.button === Qt.RightButton) {
-//                                            setResizeColumn(index);
-//                                        }
-//                                        else {
-//                                            if(optionsPopup.clickColumnAction === 1 || columnDragger.visible) {
-//                                                setResizeColumn(index);
-//                                            }
-//                                            else {
-//                                                if(sortIndicator !== 4) {
-//                                                    var newSort = columns.get(index).sort;
-//                                                    newSort++;
-//                                                    if(newSort > 2) newSort = 0;
-
-//                                                    // for performance speedup
-//                                                    verticalScrollbar.setPosition(0);
-
-//                                                    gridDataModel.dataNeedSort();
-//                                                    columns.get(index).sort = newSort;
-//                                                }
-//                                            }
-//                                        }
-                                    }
-//                                    onPressAndHold: {
-//                                        setResizeColumn(index);
-//                                    }
+                                    onClicked:  setResizeColumn(index);
 
                                     onEntered: isHovered = true
                                     onExited: isHovered = false
@@ -393,23 +367,6 @@ Item {
                         if(contentX >= 0 && headingsFlick.contentX !== contentX)
                             headingsFlick.contentX = contentX
                     }
-
-                    /*
-                    Rectangle {
-                        id: highlightRect
-                        border.width: 2
-                        border.color: dataHighlight
-                        color: "transparent"
-                        radius: 5
-                        anchors.left: parent.left
-                        width: tview.width
-                        //anchors.right: parent.right
-                        z:2
-                        y:0
-                        height: 100
-                        visible: false
-                    }
-                    */
                 }
         }
 
@@ -598,8 +555,9 @@ Item {
             columnDragger.visible = false
             columnSorter.visible = false
 
-            columnIndicator.x = currentResizePos - columnIndicator.width / 2
-            columnDragger.x = currentResizePos - columnDragger.width / 2
+            console.log('Ox:', tview.contentX)
+            columnIndicator.x = currentResizePos - columnIndicator.width / 2 - tview.contentX
+            columnDragger.x = currentResizePos - columnDragger.width / 2 - tview.contentX
             columnDragger.y = 40
             columnSorter.x = columnDragger.x
             columnSorter.y = 80
@@ -639,11 +597,12 @@ Item {
 
                 doFireColumnsChange = oldFire
 
-                columnIndicator.x += xDelta
-                xDelta = 0
-                xStart = columnDragger.x
-
                 fromColumnListModelToTable(false);
+                gridDataModel.beginReset(true);
+                gridDataModel.endReset();
+                tview.forceLayout();
+
+                recalcDragger();
             }
         }
     }
@@ -793,8 +752,7 @@ Item {
             gridDataModel.endUpdateColumns( );
         }
 
-        if(currentResizeColumn >= 0)
-            recalcDragger();
+        if(currentResizeColumn >= 0)    recalcDragger();
     }
 
     Connections {

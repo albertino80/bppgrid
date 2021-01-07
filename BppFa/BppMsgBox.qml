@@ -108,9 +108,12 @@ Dialog {
         color: BppMetrics.windowBackgroundAlt
         height: 40
         implicitHeight: 40
+        border.width: 1
+        border.color: BppMetrics.windowBackground
 
         RowLayout {
             anchors.fill: parent
+
             Label {
                 text: title
                 Layout.fillWidth: true

@@ -4,9 +4,11 @@
 ### Changed column resize and ordering, more mobile friendly
 Now clicking on a column title, an indicator will appear to resize and reorder the column. By clicking again, the indicator will disappear
 
-Removed qml namespace BppTableModel, no more `import BppTableModel 0.1` needed
+### Removed qml namespace BppTableModel
+No more `import BppTableModel 0.1` needed
 
-Extended BppFa project with some related controls (docs and examples in progress)
+### Extended BppFa project with some related controls 
+[Example](https://dev.bigno.it/bppgrid/color_grid.gif)
 
 ## Version 1.2.0 (11 November 2020)
 ### Changed row selection indicator
@@ -15,7 +17,7 @@ Now, all selected row have a background color controlled by properties:
 * `property color dataBkSelEven`
 
 ### Add multiselection
-[Example!](https://dev.bigno.it/bppgrid/multiselection.gif)
+[Example](https://dev.bigno.it/bppgrid/multiselection.gif)
 
 Multiselection can be enabled with
 * `property bool withMultiselection`

@@ -2,6 +2,8 @@ pragma Singleton
 
 import QtQuick 2.12
 
+//All BppFa components depends on this metrics
+
 Item {
     property int fontSizePt: Qt.application.font.pointSize;
     property int fontSizePtMedium: Qt.application.font.pointSize * 1.2

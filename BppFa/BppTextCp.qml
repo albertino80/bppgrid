@@ -41,13 +41,11 @@ Item {
             id: textInput
             Layout.fillWidth: true
             selectByMouse: true
-            //placeholderText: qsTr("Filter")
-            //placeholderText: mainItemTFCP.placeholderText
 
             Menu {
                 id: contextMenu
                 MenuItem {
-                    text: qsTr("Taglia")
+                    text: qsTr("Cut")
                     enabled: textInput.enabled
                     onTriggered: {
                         textInput.selectAll()
@@ -56,7 +54,7 @@ Item {
                     }
                 }
                 MenuItem {
-                    text: qsTr("Copia")
+                    text: qsTr("Copy")
                     enabled: textInput.text.length > 0
                     onTriggered: {
                         textInput.selectAll()
@@ -65,14 +63,14 @@ Item {
                     }
                 }
                 MenuItem {
-                    text: qsTr("Incolla")
+                    text: qsTr("Paste")
                     enabled: textInput.enabled
                     onTriggered: {
                         textInput.paste()
                     }
                 }
                 MenuItem {
-                    text: qsTr("Vuota e Incolla")
+                    text: qsTr("Clear and paste")
                     enabled: textInput.enabled
                     onTriggered: {
                         textInput.clear()
@@ -80,7 +78,7 @@ Item {
                     }
                 }
                 MenuItem {
-                    text: qsTr("Vuota")
+                    text: qsTr("Clear")
                     enabled: textInput.enabled
                     onTriggered: {
                         textInput.clear()
@@ -93,7 +91,7 @@ Item {
             id: btnClip
             text: Fa.fa_clipboard
             font.family: Fa.regular
-            ToolTip.text: qsTr("Copy/Past options")
+            ToolTip.text: qsTr("Copy/Paste options")
             onPressed: {
                 contextMenu.popup(btnClip);
             }

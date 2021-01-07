@@ -19,7 +19,7 @@ Button{
             text: theMainBtn.text
             Layout.fillWidth: true
             font.pointSize: BppMetrics.fontSizePt
-            color: enabled ? BppMetrics.textColor : BppMetrics.textColorDisabled
+            color: theMainBtn.enabled ? BppMetrics.textColor : BppMetrics.textColorDisabled
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
         }
@@ -32,7 +32,7 @@ Button{
             font.family: Fa.solid
             text: iconFa
             font.pointSize: BppMetrics.fontSizeCommandIcons
-            color: enabled ?
+            color: theMainBtn.enabled ?
                        (hovered ? BppMetrics.accentColor : BppMetrics.textColor) :
                        BppMetrics.textColorDisabled
             horizontalAlignment: Text.AlignHCenter

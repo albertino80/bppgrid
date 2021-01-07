@@ -443,6 +443,7 @@ namespace bpp {
         else if(columnsDef[columnId]->visible)
             theW = columnsDef[columnId]->width;
 
+        //qDebug() << columnId << theW;
         return theW;
     }
 
