@@ -555,7 +555,6 @@ Item {
             columnDragger.visible = false
             columnSorter.visible = false
 
-            console.log('Ox:', tview.contentX)
             columnIndicator.x = currentResizePos - columnIndicator.width / 2 - tview.contentX
             columnDragger.x = currentResizePos - columnDragger.width / 2 - tview.contentX
             columnDragger.y = 40
