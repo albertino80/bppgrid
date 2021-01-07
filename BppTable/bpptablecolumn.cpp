@@ -20,7 +20,8 @@ namespace bpp {
 
     void TableColumn::registerQml()
     {
-        qmlRegisterType<bpp::TableColumn>("BppTableModel", 0, 1, "BTColumn");
+        //qmlRegisterType<bpp::TableColumn>("BppTableModel", 0, 1, "BTColumn");
+        qmlRegisterType<bpp::TableColumn>("BppTable", 0, 1, "BTColumn");
     }
 
     void TableColumn::modify(const QVariantMap &colDef, bool withDefaults)

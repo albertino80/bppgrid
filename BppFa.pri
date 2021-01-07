@@ -18,5 +18,9 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 
 SOURCES += $$PWD/BppFa/bppfontawesome.cpp
 HEADERS += $$PWD/BppFa/bppfontawesome.h
+
 INCLUDEPATH += $$PWD/BppFa
 RESOURCES += $$PWD/BppFa.qrc
+
+QML_IMPORT_PATH += $$PWD
+QML_DESIGNER_IMPORT_PATH += $$PWD

@@ -3,5 +3,19 @@
         <file>BppFa/fonts/fa-brands-400.ttf</file>
         <file>BppFa/fonts/fa-regular-400.ttf</file>
         <file>BppFa/fonts/fa-solid-900.ttf</file>
+        <file>BppFa/fonts/Roboto-Regular.ttf</file>
+        <file>BppFa/BppColorPicker.qml</file>
+        <file>BppFa/BppMetrics.qml</file>
+        <file>BppFa/BppStyleMaterial.qml</file>
+        <file>BppFa/BppStyleUniversal.qml</file>
+        <file>BppFa/BppPane.qml</file>
+        <file>BppFa/BppTextCp.qml</file>
+        <file>BppFa/BppMsgBox.qml</file>
+        <file>BppFa/BppToolButtonFa.qml</file>
+        <file>BppFa/BppButton.qml</file>
+        <file>BppFa/BppColorPickerDialog.qml</file>
+        <file>BppFa/qmldir</file>
+        <file>BppFa/BppGrid.qml</file>
+        <file>BppFa/BppGridText.qml</file>
     </qresource>
 </RCC>

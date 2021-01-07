@@ -2,20 +2,24 @@ import QtQuick 2.12
 import QtQuick.Layouts 1.12
 import QtGraphicalEffects 1.12
 import QtQuick.Controls 2.12
-import BppTableModel 0.1
+//import BppTableModel 0.1
+import BppTable 0.1
 
 Item {
     id: mainItem
     property int dataHeight: 30
     property color dataHighlight: "darkturquoise"
-    property color dataBkOdd: "#FFFFFF"
-    property color dataBkEven: "#F6F8FA"
-    property color dataBkSelOdd: "#40ffa8"
-    property color dataBkSelEven: "#3df5a1"
+    property color dataBkOdd: "#FFFFFF"     //data background odd row
+    property color dataBkEven: "#F6F8FA"    //data background even row
+    property color dataBkSelOdd: "#40ffa8"  //selection background odd row
+    property color dataBkSelEven: "#3df5a1" //selection background even row
 
     property int headingsHeight: 30
+    property int headingsFontSizePt: 11
+
     property color headingsBk: "#E7E7E7"
-    property color headingsLines: "#C5C5C5"
+    property color headingsBkAlt: "white"   //heading hovered color
+    property color headingsLines: "#C5C5C5" //no data space
     //property color headingsTextColor: "#313131"
     property color headingsTextColor: "black"
     property color headingsSortColor: "#000099"
@@ -34,6 +38,7 @@ Item {
 
     property bool withMultiselection: false
     property bool withMultiselectionMobileMode: false
+    property bool withOptionEvent: false
 
     property var cellDelegate: null
     property int selectedRow: -1
@@ -44,6 +49,7 @@ Item {
     property ListModel columns: ListModel{}
 
     signal selectionChanged();
+    signal openOptions();
 
     function rows(){
         return gridDataModel.rowCount();
@@ -210,7 +216,7 @@ Item {
                 Flickable {
                     id: headingsFlick
                     Layout.fillWidth: true
-                    height: headingsHeight
+                    Layout.preferredHeight: headingsHeight
                     contentWidth: tview.contentWidth
                     boundsBehavior: Flickable.StopAtBounds
                     clip: true
@@ -226,8 +232,10 @@ Item {
                             Rectangle{
                                 Layout.minimumWidth: model.width;
                                 Layout.minimumHeight: headingsFlick.height
-                                color: headingsBk
+                                color: index == currentResizeColumn ? headingsBkAlt : headingsBk
                                 visible: model.visible
+                                border.width: (mouseAreaColumn.isHovered || index === currentResizeColumn) ? 1 : 0
+                                border.color: index == currentResizeColumn ? headingsBk : headingsBkAlt
 
                                 property int sortIndicator: sort;
 
@@ -243,7 +251,7 @@ Item {
                                     leftPadding: 5
                                     //font.bold: true
                                     verticalAlignment: Text.AlignVCenter
-                                    font.pointSize: 11
+                                    font.pointSize: headingsFontSizePt
                                     text: title
                                     elide: Qt.ElideRight
                                 }
@@ -253,17 +261,13 @@ Item {
                                     anchors.right: parent.right
                                     anchors.verticalCenter: parent.verticalCenter
                                     anchors.rightMargin: 5
-                                    visible: sortIndicator !== 4
+                                    visible: sortIndicator !== 4 && sortIndicator !== 0
 
-                                    source: sortIndicator === 0 ? "qrc:/BppTable/assets/sort-up-and-down.svg" :
-                                            (
-                                                sortIndicator === 1 ? "qrc:/BppTable/assets/sort-up.svg" :
-                                                                      "qrc:/BppTable/assets/sort-down.svg"
-                                            )
+                                    source: sortIndicator === 1 ? "qrc:/BppTable/assets/sort-up.svg" : "qrc:/BppTable/assets/sort-down.svg"
                                     width: 10; height: 10
                                 }
                                 ColorOverlay{
-                                    visible: sortIndicator !== 4
+                                    visible: sortIndicator !== 4 && sortIndicator !== 0
                                     anchors.fill: sortImage
                                     source:sortImage
                                     color: sortIndicator === 0 ? headingsNoSortColor : headingsSortColor
@@ -275,33 +279,39 @@ Item {
                                     id: mouseAreaColumn
                                     anchors.fill: parent
                                     acceptedButtons: Qt.LeftButton | Qt.RightButton
+                                    hoverEnabled: true
+                                    property bool isHovered: false
 
                                     onClicked: {
-                                        if(mouse.button === Qt.RightButton) {
-                                            setResizeColumn(index);
-                                        }
-                                        else {
-                                            if(optionsPopup.clickColumnAction === 1 || columnDragger.visible) {
-                                                setResizeColumn(index);
-                                            }
-                                            else {
-                                                if(sortIndicator !== 4) {
-                                                    var newSort = columns.get(index).sort;
-                                                    newSort++;
-                                                    if(newSort > 2) newSort = 0;
-
-                                                    // for performance speedup
-                                                    verticalScrollbar.setPosition(0);
-
-                                                    gridDataModel.dataNeedSort();
-                                                    columns.get(index).sort = newSort;
-                                                }
-                                            }
-                                        }
-                                    }
-                                    onPressAndHold: {
                                         setResizeColumn(index);
+//                                        if(mouse.button === Qt.RightButton) {
+//                                            setResizeColumn(index);
+//                                        }
+//                                        else {
+//                                            if(optionsPopup.clickColumnAction === 1 || columnDragger.visible) {
+//                                                setResizeColumn(index);
+//                                            }
+//                                            else {
+//                                                if(sortIndicator !== 4) {
+//                                                    var newSort = columns.get(index).sort;
+//                                                    newSort++;
+//                                                    if(newSort > 2) newSort = 0;
+
+//                                                    // for performance speedup
+//                                                    verticalScrollbar.setPosition(0);
+
+//                                                    gridDataModel.dataNeedSort();
+//                                                    columns.get(index).sort = newSort;
+//                                                }
+//                                            }
+//                                        }
                                     }
+//                                    onPressAndHold: {
+//                                        setResizeColumn(index);
+//                                    }
+
+                                    onEntered: isHovered = true
+                                    onExited: isHovered = false
                                 }
                             }
                         }
@@ -450,62 +460,50 @@ Item {
 
             visible: false
         }
+        Rectangle {
+            id: columnSorter
+            z:2
+
+            width: draggerSize
+            height: draggerSize
+
+            border.color: "#303030"
+            color: "#C0C0C0"
+            radius: draggerSize / 2
+
+            Image {
+                source: "qrc:/BppTable/assets/sort-up-and-down.svg"
+                anchors.centerIn: parent
+                sourceSize: Qt.size(20,20)
+            }
+
+            MouseArea{
+                anchors.fill: parent
+                onClicked: {
+                    var newSort = columns.get(currentResizeColumn).sort;
+                    if(newSort !== 4) {
+                        newSort++;
+                        if(newSort > 2) newSort = 0;
+
+                        // for performance speedup
+                        verticalScrollbar.setPosition(0);
+
+                        gridDataModel.dataNeedSort();
+                        columns.get(currentResizeColumn).sort = newSort;
+                    }
+                }
+            }
+
+            visible: false
+        }
 
         onWidthChanged: {
             fromColumnListModelToTable(false); //resize columns
         }
 
-        Popup {
-            id: optionsPopup
-            anchors.centerIn: parent
-            width: 300
-            height: 200
-            modal: true
-            focus: visible
-            closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
-
-            property int clickColumnAction: 0 //0=sort; 1=resize
-
-            ColumnLayout {
-                anchors.fill: parent
-                Label {
-                    text: qsTr("Tap/Click on column")
-                    font.pointSize: Qt.application.font.pointSize * 1.5
-                    font.bold: true
-                }
-
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    RadioButton {
-                        checked: true
-                        text: qsTr("Sort")
-                        onClicked: optionsPopup.clickColumnAction = 0
-                    }
-                    RadioButton {
-                        text: qsTr("Resize")
-                        onClicked: optionsPopup.clickColumnAction = 1
-                    }
-                }
-
-                Item {
-                    Layout.fillHeight: true
-                    Layout.fillWidth: true
-                }
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignCenter
-                    Button {
-                        text: qsTr("Done")
-                        onPressed: optionsPopup.close()
-                    }
-                }
-            }
-        }
-
         RoundButton {
             id: btnOptions
-            visible: showOptionsButton
+            visible: showOptionsButton && (optionBehaviour > 0 || withOptionEvent)
             anchors.bottom: parent.bottom
             anchors.right: parent.right
             anchors.margins: 10
@@ -513,7 +511,7 @@ Item {
 
             property string currentIcoOptions: icoOptions
             property string currentTtOptions: ttOptions
-            property int optionBehaviour: 0; //0=open popup; 1=copy to clipboard; 2 cancel column resize
+            property int optionBehaviour: 0; //0=open popup; 1=copy to clipboard
 
             icon.source: currentIcoOptions
             padding: 0
@@ -522,32 +520,23 @@ Item {
             ToolTip.text: currentTtOptions
             onPressed: {
                     if(optionBehaviour === 0)
-                        optionsPopup.open();
+                        openOptions();
                     else if(optionBehaviour === 1)
                         gridDataModel.copyRowToClipboard(selectedRow);
-                    else if(optionBehaviour === 2)
-                        setResizeColumn(-1);
             }
         }
     }
 
     function setOptionIcon() {
-        if(columnIndicator.visible) {
-            btnOptions.optionBehaviour = 2;
-            btnOptions.currentIcoOptions = icoCancel
-            btnOptions.currentTtOptions = ttCancel
+        if(selectedRow === -1) {
+            btnOptions.optionBehaviour = 0;
+            btnOptions.currentIcoOptions = icoOptions
+            btnOptions.currentTtOptions = ttOptions
         }
         else {
-            if(selectedRow === -1) {
-                btnOptions.optionBehaviour = 0;
-                btnOptions.currentIcoOptions = icoOptions
-                btnOptions.currentTtOptions = ttOptions
-            }
-            else {
-                btnOptions.optionBehaviour = 1;
-                btnOptions.currentIcoOptions = icoCopy
-                btnOptions.currentTtOptions = ttCopy
-            }
+            btnOptions.optionBehaviour = 1;
+            btnOptions.currentIcoOptions = icoCopy
+            btnOptions.currentTtOptions = ttCopy
         }
     }
 
@@ -587,6 +576,7 @@ Item {
         if(currentResizeColumn == -1) {
             columnIndicator.visible = false
             columnDragger.visible = false
+            columnSorter.visible = false
         }
         else {
             var curCol = null;
@@ -606,15 +596,20 @@ Item {
 
             columnIndicator.visible = false
             columnDragger.visible = false
+            columnSorter.visible = false
 
             columnIndicator.x = currentResizePos - columnIndicator.width / 2
             columnDragger.x = currentResizePos - columnDragger.width / 2
             columnDragger.y = 40
+            columnSorter.x = columnDragger.x
+            columnSorter.y = 80
             xStart = columnDragger.x
             xDelta = 0
 
             columnIndicator.visible = true
             columnDragger.visible = true
+            if(columns.get(currentResizeColumn).sort !== 4)
+                columnSorter.visible = true
         }
         setOptionIcon();
     }

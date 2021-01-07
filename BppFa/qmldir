@@ -1,0 +1,13 @@
+module BppFa
+singleton BppMetrics 1.0 BppMetrics.qml
+singleton BppStyleMaterial 1.0 BppStyleMaterial.qml
+singleton BppStyleUniversal 1.0 BppStyleUniversal.qml
+BppPane 1.0 BppPane.qml
+BppToolButtonFa 1.0 BppToolButtonFa.qml
+BppTextCp 1.0 BppTextCp.qml
+BppMsgBox 1.0 BppMsgBox.qml
+BppButton 1.0 BppButton.qml
+BppColorPicker 1.0 BppColorPicker.qml
+BppColorPickerDialog 1.0 BppColorPickerDialog.qml
+BppGrid 1.0 BppGrid.qml
+BppGridText 1.0 BppGridText.qml

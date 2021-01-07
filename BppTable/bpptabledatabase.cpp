@@ -15,6 +15,7 @@ namespace bpp {
 
     void TableDatabase::registerQml()
     {
-        qmlRegisterType<bpp::TableDatabase>("BppTableModel", 0, 1, "BTDb");
+        //qmlRegisterType<bpp::TableDatabase>("BppTableModel", 0, 1, "BTDb");
+        qmlRegisterType<bpp::TableDatabase>("BppTable", 0, 1, "BTDb");
     }
 }

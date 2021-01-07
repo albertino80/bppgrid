@@ -1,5 +1,6 @@
 import QtQuick 2.0
-import BppTableModel 0.1
+//import BppTableModel 0.1
+import BppTable 0.1
 
 MouseArea {
     property var grid: null

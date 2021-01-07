@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 1.3.0 (7 January 2021)
+### Changed column resize and ordering, more mobile friendly
+Now clicking on a column title, an indicator will appear to resize and reorder the column. By clicking again, the indicator will disappear
+
+Removed qml namespace BppTableModel, no more `import BppTableModel 0.1` needed
+
+Extended BppFa project with some related controls (docs and examples in progress)
+
 ## Version 1.2.0 (11 November 2020)
 ### Changed row selection indicator
 Now, all selected row have a background color controlled by properties:

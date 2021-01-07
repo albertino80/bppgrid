@@ -338,7 +338,8 @@ namespace bpp {
 
     void TableModel::registerQml()
     {
-        qmlRegisterType<bpp::TableModel>("BppTableModel", 0, 1, "BTModel");
+        //qmlRegisterType<bpp::TableModel>("BppTableModel", 0, 1, "BTModel");
+        qmlRegisterType<bpp::TableModel>("BppTable", 0, 1, "BTModel");
         bpp::TableDatabase::registerQml();
         bpp::TableColumn::registerQml();
     }
