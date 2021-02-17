@@ -597,7 +597,7 @@ namespace bpp {
         }
         return colVal.toString();
     }
-
+    
     bool TableModel::getMultiselectionMobileMode() const
     {
         return multiselectionMobileMode;
