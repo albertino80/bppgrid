@@ -28,6 +28,7 @@ Button{
             id: theIcon
             visible: iconFa.length > 0
             Layout.fillWidth: lblText.visible ? false : true
+            Layout.leftMargin: lblText.visible ? 5 : 0
 
             font.family: Fa.solid
             text: iconFa
