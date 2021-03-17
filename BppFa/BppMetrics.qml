@@ -5,6 +5,7 @@ import QtQuick 2.12
 //All BppFa components depends on this metrics
 
 Item {
+    property int fontSizePtSmall: Qt.application.font.pointSize * 0.8;
     property int fontSizePt: Qt.application.font.pointSize;
     property int fontSizePtMedium: Qt.application.font.pointSize * 1.2
     property int fontSizePtBig: Qt.application.font.pointSize * 1.7

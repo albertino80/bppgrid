@@ -21,14 +21,14 @@ Item {
     implicitHeight: Math.max(textInput.implicitHeight, btnClip.implicitHeight)
 
     function valueOrNull(){
-        if(textInput.text.length > 0)
-            return textInput.text;
+        if(textInput.text.trim().length > 0)
+            return textInput.text.trim();
         return null;
     }
 
     function valueOrNullUc(){
-        if(textInput.text.length > 0)
-            return textInput.text.toLocaleUpperCase();
+        if(textInput.text.trim().length > 0)
+            return textInput.text.trim().toLocaleUpperCase();
         return null;
     }
 
