@@ -37,6 +37,7 @@ Item {
             BppMetrics.windowBackgroundAlt = "#FFFFFF"
             BppMetrics.panelBackground = "#FAFAFA"
             BppMetrics.buttonBackground = "#D6D7D7"
+            BppMetrics.buttonBackgroundAlt = "#FDFDFD"
             BppMetrics.headingTextColor = "#15325C"
             BppMetrics.accentColor = Material.color(Material.Blue); //"#2196F3" //Material.Indigo
             BppMetrics.textColor = "#000000"
@@ -51,7 +52,8 @@ Item {
             BppMetrics.windowBackground = "#303030"
             BppMetrics.windowBackgroundAlt = "#151515"
             BppMetrics.panelBackground = "#1E1E1E"
-            BppMetrics.buttonBackground = "#404040";
+            BppMetrics.buttonBackground = "#404040"
+            BppMetrics.buttonBackgroundAlt = "#353535"
             BppMetrics.headingTextColor = "#FEFEFE"
             BppMetrics.accentColor = Material.color(Material.Cyan); //"#80DEEA" //Material.Cyan
             BppMetrics.textColor = "#FFFFFF"

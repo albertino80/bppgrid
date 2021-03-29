@@ -23,6 +23,7 @@ Item {
     property color windowBackground: "#E6E6E6"
     property color windowBackgroundAlt: "#FFFFFF"
     property color buttonBackground: "#D6D7D7"
+    property color buttonBackgroundAlt: "#D0D0D0"
     property color accentColor: "#2196F3"
     property color textColor: "#000000"
     property color textColorDisabled: "#666666"

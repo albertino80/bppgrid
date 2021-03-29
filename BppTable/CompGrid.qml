@@ -29,6 +29,8 @@ Item {
     property string dateTimeFormat: "dd/MM/yyyy HH:mm:ss"
 
     property bool showOptionsButton: true
+    property bool clickOnNothingClearSel: true
+
     property string icoCopy: "qrc:/BppTable/assets/copy-solid.svg"
     property string ttCopy: qsTr("Copy current row")
     property string icoOptions: "qrc:/BppTable/assets/cog-solid.svg"
@@ -213,161 +215,175 @@ Item {
             spacing: 0
             clip: true
 
-                Flickable {
-                    id: headingsFlick
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: headingsHeight
-                    contentWidth: tview.contentWidth
-                    boundsBehavior: Flickable.StopAtBounds
-                    clip: true
+            Flickable {
+                id: headingsFlick
+                Layout.fillWidth: true
+                Layout.preferredHeight: headingsHeight
+                contentWidth: tview.contentWidth
+                boundsBehavior: Flickable.StopAtBounds
+                clip: true
 
-                    RowLayout {
-                        id: headings
-                        //Layout.fillWidth: true
-                        spacing: 1
+                RowLayout {
+                    id: headings
+                    //Layout.fillWidth: true
+                    spacing: 1
 
-                        Repeater {
-                            id: colRepeater
-                            model: columns //ListModel {}
-                            Rectangle{
-                                Layout.minimumWidth: model.width;
-                                Layout.minimumHeight: headingsFlick.height
-                                color: index == currentResizeColumn ? headingsBkAlt : headingsBk
-                                visible: model.visible
-                                border.width: (mouseAreaColumn.isHovered || index === currentResizeColumn) ? 1 : 0
-                                border.color: index == currentResizeColumn ? headingsBk : headingsBkAlt
+                    Repeater {
+                        id: colRepeater
+                        model: columns //ListModel {}
+                        Rectangle{
+                            Layout.minimumWidth: model.width;
+                            Layout.minimumHeight: headingsFlick.height
+                            color: index == currentResizeColumn ? headingsBkAlt : headingsBk
+                            visible: model.visible
+                            border.width: (mouseAreaColumn.isHovered || index === currentResizeColumn) ? 1 : 0
+                            border.color: index == currentResizeColumn ? headingsBk : headingsBkAlt
 
-                                property int sortIndicator: sort;
+                            property int sortIndicator: sort;
 
-                                Text{
-                                    color: headingsTextColor
-                                    anchors{
-                                        left: parent.left
-                                        top: parent.top
-                                        bottom: parent.bottom
-                                        right: sortImage.left
-                                    }
-
-                                    leftPadding: 5
-                                    //font.bold: true
-                                    verticalAlignment: Text.AlignVCenter
-                                    font.pointSize: headingsFontSizePt
-                                    text: title
-                                    elide: Qt.ElideRight
+                            Text{
+                                color: headingsTextColor
+                                anchors{
+                                    left: parent.left
+                                    top: parent.top
+                                    bottom: parent.bottom
+                                    right: sortImage.left
                                 }
 
-                                Image {
-                                    id: sortImage
-                                    anchors.right: parent.right
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    anchors.rightMargin: 5
-                                    visible: sortIndicator !== 4 && sortIndicator !== 0
+                                leftPadding: 5
+                                //font.bold: true
+                                verticalAlignment: Text.AlignVCenter
+                                font.pointSize: headingsFontSizePt
+                                text: title
+                                elide: Qt.ElideRight
+                            }
 
-                                    source: sortIndicator === 1 ? "qrc:/BppTable/assets/sort-up.svg" : "qrc:/BppTable/assets/sort-down.svg"
-                                    width: 10; height: 10
-                                }
-                                ColorOverlay{
-                                    visible: sortIndicator !== 4 && sortIndicator !== 0
-                                    anchors.fill: sortImage
-                                    source:sortImage
-                                    color: sortIndicator === 0 ? headingsNoSortColor : headingsSortColor
-                                    transform:rotation
-                                    antialiasing: true
-                                }
+                            Image {
+                                id: sortImage
+                                anchors.right: parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.rightMargin: 5
+                                visible: sortIndicator !== 4 && sortIndicator !== 0
 
-                                MouseArea {
-                                    id: mouseAreaColumn
-                                    anchors.fill: parent
-                                    acceptedButtons: Qt.LeftButton | Qt.RightButton
-                                    hoverEnabled: true
-                                    property bool isHovered: false
+                                source: sortIndicator === 1 ? "qrc:/BppTable/assets/sort-up.svg" : "qrc:/BppTable/assets/sort-down.svg"
+                                width: 10; height: 10
+                            }
+                            ColorOverlay{
+                                visible: sortIndicator !== 4 && sortIndicator !== 0
+                                anchors.fill: sortImage
+                                source:sortImage
+                                color: sortIndicator === 0 ? headingsNoSortColor : headingsSortColor
+                                transform:rotation
+                                antialiasing: true
+                            }
 
-                                    onClicked:  setResizeColumn(index);
+                            MouseArea {
+                                id: mouseAreaColumn
+                                anchors.fill: parent
+                                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                                hoverEnabled: true
+                                property bool isHovered: false
 
-                                    onEntered: isHovered = true
-                                    onExited: isHovered = false
-                                }
+                                onClicked:  setResizeColumn(index);
+
+                                onEntered: isHovered = true
+                                onExited: isHovered = false
                             }
                         }
                     }
-
-                    onContentXChanged: {
-                        if(contentX >= 0 && tview.contentX !== contentX)
-                            tview.contentX = contentX
-                    }
                 }
 
-                Rectangle {
-                    color: headingsBk
-                    border.color: headingsLines
-                    Layout.fillWidth: true
-                    height: headingsHeight
-                    visible: withMultiselection
-                    RowLayout{
-                        id: selectionPanel
-                        anchors.fill: parent
-                        anchors.margins: 5
+                onContentXChanged: {
+                    if(contentX >= 0 && tview.contentX !== contentX)
+                        tview.contentX = contentX
+                }
+            }
+
+            Rectangle {
+                color: headingsBk
+                border.color: headingsLines
+                Layout.fillWidth: true
+                height: headingsHeight
+                visible: withMultiselection
+                RowLayout{
+                    id: selectionPanel
+                    anchors.fill: parent
+                    anchors.margins: 5
+                    Text {
+                        text: qsTr("Select")
+                        color: headingsTextColor
+                    }
+                    Repeater {
+                        model: ListModel{
+                            ListElement{
+                                linkAction: "all"
+                                linkText: qsTr("All")
+                            }
+                            ListElement{
+                                linkAction: "none"
+                                linkText: qsTr("None")
+                            }
+                        }
                         Text {
-                            text: qsTr("Select")
-                            color: headingsTextColor
-                        }
-                        Repeater {
-                            model: ListModel{
-                                ListElement{
-                                    linkAction: "all"
-                                    linkText: qsTr("All")
-                                }
-                                ListElement{
-                                    linkAction: "none"
-                                    linkText: qsTr("None")
-                                }
+                            text: '<html><a href="%1">%2</a></html>'.arg(linkAction).arg(linkText)
+                            linkColor: headingsTextColor
+                            onLinkActivated: {
+                                if(link === "all")  selectAll();
+                                else if(link === "none")  clearSelection();
                             }
-                            Text {
-                                text: '<html><a href="%1">%2</a></html>'.arg(linkAction).arg(linkText)
-                                linkColor: headingsTextColor
-                                onLinkActivated: {
-                                    if(link === "all")  selectAll();
-                                    else if(link === "none")  clearSelection();
-                                }
-                                MouseArea {
-                                    anchors.fill: parent
-                                    acceptedButtons: Qt.NoButton // we don't want to eat clicks on the Text
-                                    cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.ArrowCursor
-                                }
+                            MouseArea {
+                                anchors.fill: parent
+                                acceptedButtons: Qt.NoButton // we don't want to eat clicks on the Text
+                                cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.ArrowCursor
                             }
                         }
-                        Item {
-                            Layout.fillWidth: true
-                        }
+                    }
+                    Item {
+                        Layout.fillWidth: true
                     }
                 }
+            }
 
-                TableView {
-                    id: tview
-                    columnSpacing: 1
-                    rowSpacing: 0
-                    clip: true
-                    boundsBehavior: Flickable.StopAtBounds
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
+            TableView {
+                id: tview
+                columnSpacing: 1
+                rowSpacing: 0
+                clip: true
+                boundsBehavior: Flickable.StopAtBounds
+                Layout.fillWidth: true
+                Layout.fillHeight: true
 
-                    columnWidthProvider: gridDataModel.getColWidth;
+                columnWidthProvider: gridDataModel.getColWidth;
 
-                    model: gridDataModel
-                    reuseItems: true
+                model: gridDataModel
+                reuseItems: true
 
-                    delegate: cellDelegate
+                delegate: cellDelegate
 
-                    ScrollBar.horizontal: ScrollBar { orientation: Qt.Horizontal }
-                    ScrollBar.vertical: ScrollBar {
-                        id: verticalScrollbar
-                    }
-
-                    onContentXChanged: {
-                        if(contentX >= 0 && headingsFlick.contentX !== contentX)
-                            headingsFlick.contentX = contentX
-                    }
+                ScrollBar.horizontal: ScrollBar { orientation: Qt.Horizontal }
+                ScrollBar.vertical: ScrollBar {
+                    id: verticalScrollbar
                 }
+
+                onContentXChanged: {
+                    if(contentX >= 0 && headingsFlick.contentX !== contentX)
+                        headingsFlick.contentX = contentX
+                }
+            }
+        }
+
+        MouseArea {
+            enabled: clickOnNothingClearSel
+            anchors.fill: parent
+            //preventStealing: true
+            propagateComposedEvents: true
+            onClicked: {
+                if(mouse.y > tview.y + (tview.contentHeight - tview.contentY) ) {
+                    clearSelection();
+                }
+                else
+                    mouse.accepted=false
+            }
         }
 
         Rectangle {
