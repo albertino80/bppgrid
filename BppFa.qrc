@@ -17,5 +17,7 @@
         <file>BppFa/qmldir</file>
         <file>BppFa/BppGrid.qml</file>
         <file>BppFa/BppGridText.qml</file>
+        <file>BppFa/BppCalendar.qml</file>
+        <file>BppFa/BppTextDate.qml</file>
     </qresource>
 </RCC>
