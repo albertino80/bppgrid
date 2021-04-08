@@ -19,5 +19,6 @@
         <file>BppFa/BppGridText.qml</file>
         <file>BppFa/BppCalendar.qml</file>
         <file>BppFa/BppTextDate.qml</file>
+        <file>BppFa/BppGridFaIcon.qml</file>
     </qresource>
 </RCC>

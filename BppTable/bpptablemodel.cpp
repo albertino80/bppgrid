@@ -430,7 +430,7 @@ namespace bpp {
         }
         else {
             dataVal[whatRow][columnNum] = data;
-            emit dataChanged( QModelIndex( index(whatRow, columnNum) ),  QModelIndex( index(whatRow, columnNum) ), {Qt::DisplayRole});
+            emit dataChanged( QModelIndex( index(rowNum, columnNum) ),  QModelIndex( index(rowNum, columnNum) ), {Qt::DisplayRole});
         }
         return true;
     }
@@ -639,7 +639,7 @@ namespace bpp {
 
     int TableModel::countHighlightRows() const
     {
-        return highlightRows.size();
+        return int(highlightRows.size());
     }
 
     QVector<int> TableModel::getHighlightRows() const

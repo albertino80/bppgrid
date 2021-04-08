@@ -2,7 +2,6 @@ import QtQuick 2.12
 import QtQuick.Layouts 1.12
 import QtGraphicalEffects 1.12
 import QtQuick.Controls 2.12
-//import BppTableModel 0.1
 import BppTable 0.1
 
 Item {
@@ -23,7 +22,6 @@ Item {
     //property color headingsTextColor: "#313131"
     property color headingsTextColor: "black"
     property color headingsSortColor: "#000099"
-    property color headingsNoSortColor: "#777777"
 
     property string dateFormat: "dd/MM/yyyy"
     property string dateTimeFormat: "dd/MM/yyyy HH:mm:ss"
@@ -197,194 +195,191 @@ Item {
     Rectangle {
         id: gridContainer
         border.color: headingsLines
-        //border.color: "black"
         color: headingsLines
-        //color: "transparent"
         anchors.fill: parent
 
-        ColumnLayout {
-            id: mainColumn
-            anchors.fill: parent
-            /*
+        Flickable {
+            id: headingsFlick
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            height: headingsHeight
+            anchors.leftMargin: 1
+            anchors.rightMargin: 1
+            topMargin: 1
+
+            contentWidth: tview.contentWidth
+            boundsBehavior: Flickable.StopAtBounds
+            clip: true
+
+            RowLayout {
+                id: headings
+                spacing: 1
+
+                Repeater {
+                    id: colRepeater
+                    model: columns //ListModel {}
+                    Rectangle{
+                        Layout.minimumWidth: model.width;
+                        Layout.minimumHeight: headingsFlick.height
+                        color: index == currentResizeColumn ? headingsBkAlt : headingsBk
+                        visible: model.visible
+                        border.width: (mouseAreaColumn.isHovered || index === currentResizeColumn) ? 1 : 0
+                        border.color: index == currentResizeColumn ? headingsBk : headingsBkAlt
+
+                        property int sortIndicator: sort;
+
+                        Text{
+                            color: headingsTextColor
+                            anchors{
+                                left: parent.left
+                                top: parent.top
+                                bottom: parent.bottom
+                                right: sortImage.left
+                            }
+
+                            leftPadding: 5
+                            //font.bold: true
+                            verticalAlignment: Text.AlignVCenter
+                            font.pointSize: headingsFontSizePt
+                            text: title
+                            elide: Qt.ElideRight
+                        }
+
+                        Image {
+                            id: sortImage
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.rightMargin: 5
+                            visible: sortIndicator !== 4 && sortIndicator !== 0 && currentResizeColumn !== index
+
+                            source: sortIndicator === 1 ? "qrc:/BppTable/assets/sort-up.svg" : "qrc:/BppTable/assets/sort-down.svg"
+                            width: 10; height: 10
+                        }
+                        ColorOverlay{
+                            visible: sortImage.visible
+                            anchors.fill: sortImage
+                            source:sortImage
+                            color: headingsSortColor
+                            transform:rotation
+                            antialiasing: true
+                        }
+
+                        MouseArea {
+                            id: mouseAreaColumn
+                            anchors.fill: parent
+                            acceptedButtons: Qt.LeftButton | Qt.RightButton
+                            hoverEnabled: true
+                            property bool isHovered: false
+
+                            onClicked:  setResizeColumn(index);
+
+                            onEntered: isHovered = true
+                            onExited: isHovered = false
+                        }
+                    }
+                }
+            }
+
+            onContentXChanged: {
+                if(contentX >= 0 && tview.contentX !== contentX)
+                    tview.contentX = contentX
+            }
+        }
+
+        Rectangle {
+            id: selectionBar
+            color: headingsBk
+            border.color: headingsLines
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: headingsFlick.bottom
+            height: withMultiselection ? headingsHeight : 0
+            visible: withMultiselection
+            RowLayout{
+                id: selectionPanel
+                anchors.fill: parent
+                anchors.margins: 5
+                Text {
+                    text: qsTr("Select")
+                    color: headingsTextColor
+                }
+                Repeater {
+                    model: ListModel{
+                        ListElement{
+                            linkAction: "all"
+                            linkText: qsTr("All")
+                        }
+                        ListElement{
+                            linkAction: "none"
+                            linkText: qsTr("None")
+                        }
+                    }
+                    Text {
+                        text: '<html><a href="%1">%2</a></html>'.arg(linkAction).arg(linkText)
+                        linkColor: headingsTextColor
+                        onLinkActivated: {
+                            if(link === "all")  selectAll();
+                            else if(link === "none")  clearSelection();
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            acceptedButtons: Qt.NoButton // we don't want to eat clicks on the Text
+                            cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.ArrowCursor
+                        }
+                    }
+                }
+                Item {
+                    Layout.fillWidth: true
+                }
+            }
+        }
+
+        TableView {
+            id: tview
+            columnSpacing: 1
+            rowSpacing: 0
+            clip: true
+            boundsBehavior: Flickable.StopAtBounds
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: selectionBar.bottom
+            anchors.bottom: parent.bottom
             anchors.leftMargin: 1
             anchors.rightMargin: 1
             anchors.bottomMargin: 1
-            */
-            anchors.margins: 1
 
-            spacing: 0
-            clip: true
+            columnWidthProvider: gridDataModel.getColWidth;
 
-            Flickable {
-                id: headingsFlick
-                Layout.fillWidth: true
-                Layout.preferredHeight: headingsHeight
-                contentWidth: tview.contentWidth
-                boundsBehavior: Flickable.StopAtBounds
-                clip: true
+            model: gridDataModel
+            reuseItems: true
 
-                RowLayout {
-                    id: headings
-                    //Layout.fillWidth: true
-                    spacing: 1
+            delegate: cellDelegate
 
-                    Repeater {
-                        id: colRepeater
-                        model: columns //ListModel {}
-                        Rectangle{
-                            Layout.minimumWidth: model.width;
-                            Layout.minimumHeight: headingsFlick.height
-                            color: index == currentResizeColumn ? headingsBkAlt : headingsBk
-                            visible: model.visible
-                            border.width: (mouseAreaColumn.isHovered || index === currentResizeColumn) ? 1 : 0
-                            border.color: index == currentResizeColumn ? headingsBk : headingsBkAlt
-
-                            property int sortIndicator: sort;
-
-                            Text{
-                                color: headingsTextColor
-                                anchors{
-                                    left: parent.left
-                                    top: parent.top
-                                    bottom: parent.bottom
-                                    right: sortImage.left
-                                }
-
-                                leftPadding: 5
-                                //font.bold: true
-                                verticalAlignment: Text.AlignVCenter
-                                font.pointSize: headingsFontSizePt
-                                text: title
-                                elide: Qt.ElideRight
-                            }
-
-                            Image {
-                                id: sortImage
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.rightMargin: 5
-                                visible: sortIndicator !== 4 && sortIndicator !== 0
-
-                                source: sortIndicator === 1 ? "qrc:/BppTable/assets/sort-up.svg" : "qrc:/BppTable/assets/sort-down.svg"
-                                width: 10; height: 10
-                            }
-                            ColorOverlay{
-                                visible: sortIndicator !== 4 && sortIndicator !== 0
-                                anchors.fill: sortImage
-                                source:sortImage
-                                color: sortIndicator === 0 ? headingsNoSortColor : headingsSortColor
-                                transform:rotation
-                                antialiasing: true
-                            }
-
-                            MouseArea {
-                                id: mouseAreaColumn
-                                anchors.fill: parent
-                                acceptedButtons: Qt.LeftButton | Qt.RightButton
-                                hoverEnabled: true
-                                property bool isHovered: false
-
-                                onClicked:  setResizeColumn(index);
-
-                                onEntered: isHovered = true
-                                onExited: isHovered = false
-                            }
-                        }
-                    }
-                }
-
-                onContentXChanged: {
-                    if(contentX >= 0 && tview.contentX !== contentX)
-                        tview.contentX = contentX
-                }
+            ScrollBar.horizontal: ScrollBar { orientation: Qt.Horizontal }
+            ScrollBar.vertical: ScrollBar {
+                id: verticalScrollbar
             }
 
-            Rectangle {
-                color: headingsBk
-                border.color: headingsLines
-                Layout.fillWidth: true
-                height: headingsHeight
-                visible: withMultiselection
-                RowLayout{
-                    id: selectionPanel
-                    anchors.fill: parent
-                    anchors.margins: 5
-                    Text {
-                        text: qsTr("Select")
-                        color: headingsTextColor
-                    }
-                    Repeater {
-                        model: ListModel{
-                            ListElement{
-                                linkAction: "all"
-                                linkText: qsTr("All")
-                            }
-                            ListElement{
-                                linkAction: "none"
-                                linkText: qsTr("None")
-                            }
-                        }
-                        Text {
-                            text: '<html><a href="%1">%2</a></html>'.arg(linkAction).arg(linkText)
-                            linkColor: headingsTextColor
-                            onLinkActivated: {
-                                if(link === "all")  selectAll();
-                                else if(link === "none")  clearSelection();
-                            }
-                            MouseArea {
-                                anchors.fill: parent
-                                acceptedButtons: Qt.NoButton // we don't want to eat clicks on the Text
-                                cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.ArrowCursor
-                            }
-                        }
-                    }
-                    Item {
-                        Layout.fillWidth: true
-                    }
-                }
-            }
-
-            TableView {
-                id: tview
-                columnSpacing: 1
-                rowSpacing: 0
-                clip: true
-                boundsBehavior: Flickable.StopAtBounds
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-
-                columnWidthProvider: gridDataModel.getColWidth;
-
-                model: gridDataModel
-                reuseItems: true
-
-                delegate: cellDelegate
-
-                ScrollBar.horizontal: ScrollBar { orientation: Qt.Horizontal }
-                ScrollBar.vertical: ScrollBar {
-                    id: verticalScrollbar
-                }
-
-                onContentXChanged: {
-                    if(contentX >= 0 && headingsFlick.contentX !== contentX)
-                        headingsFlick.contentX = contentX
-                }
+            onContentXChanged: {
+                if(contentX >= 0 && headingsFlick.contentX !== contentX)
+                    headingsFlick.contentX = contentX
             }
         }
 
         MouseArea {
             enabled: clickOnNothingClearSel
-            anchors.fill: parent
-            //preventStealing: true
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            height: tview.height - tview.contentHeight
+            z:1
             propagateComposedEvents: true
             onClicked: {
-                if(mouse.y > tview.y + (tview.contentHeight - tview.contentY) ) {
-                    clearSelection();
-                }
-                else
-                    mouse.accepted=false
+                clearSelection();
             }
         }
+
 
         Rectangle {
             id: columnIndicator
@@ -443,9 +438,11 @@ Item {
             border.color: "#303030"
             color: "#C0C0C0"
             radius: draggerSize / 2
+            property int currentSortValue: 0
 
             Image {
-                source: "qrc:/BppTable/assets/sort-up-and-down.svg"
+                source: columnSorter.currentSortValue === 0 ? "qrc:/BppTable/assets/sort-up-and-down.svg" :
+                                                              (columnSorter.currentSortValue === 1 ? "qrc:/BppTable/assets/sort-up.svg" : "qrc:/BppTable/assets/sort-down.svg")
                 anchors.centerIn: parent
                 sourceSize: Qt.size(20,20)
             }
@@ -453,17 +450,13 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    var newSort = columns.get(currentResizeColumn).sort;
-                    if(newSort !== 4) {
-                        newSort++;
-                        if(newSort > 2) newSort = 0;
+                    columnSorter.currentSortValue = (columnSorter.currentSortValue+1) % 3
 
-                        // for performance speedup
-                        verticalScrollbar.setPosition(0);
+                    //performance speedup
+                    verticalScrollbar.setPosition(0);
 
-                        gridDataModel.dataNeedSort();
-                        columns.get(currentResizeColumn).sort = newSort;
-                    }
+                    gridDataModel.dataNeedSort();
+                    columns.get(currentResizeColumn).sort = columnSorter.currentSortValue;
                 }
             }
 
@@ -575,14 +568,16 @@ Item {
             columnDragger.x = currentResizePos - columnDragger.width / 2 - tview.contentX
             columnDragger.y = 40
             columnSorter.x = columnDragger.x
-            columnSorter.y = 80
+            columnSorter.y = 0
             xStart = columnDragger.x
             xDelta = 0
 
             columnIndicator.visible = true
             columnDragger.visible = true
-            if(columns.get(currentResizeColumn).sort !== 4)
+            if(columns.get(currentResizeColumn).sort !== 4) {
+                columnSorter.currentSortValue = columns.get(currentResizeColumn).sort
                 columnSorter.visible = true
+            }
         }
         setOptionIcon();
     }
@@ -694,7 +689,7 @@ Item {
             doFireColumnsChange = true;
         }
 
-        if(columns.count > 0 && mainColumn.width > 0){
+        if(columns.count > 0 && gridContainer.width > 0){
             var minWidth = 0;
             var toResize = [];
             var curCol = null;
@@ -721,7 +716,7 @@ Item {
                     }
                 }
 
-                var newWidth = mainColumn.width - colSpace - usedWidth;
+                var newWidth = gridContainer.width - colSpace - usedWidth;
                 if( newWidth < minWidth ) { //mantain minWidth
                     for(i=0; i<toResize.length; i++) {
                         curCol = columns.get( toResize[i] );
@@ -738,7 +733,7 @@ Item {
                         var calcWidth = Math.floor(curCol.minWidth * factor);
                         if(i === toResize.length - 1) {
                             //due to previous roundings, last resize column get all available space
-                            calcWidth = mainColumn.width - colSpace - (allWidth + usedWidth)
+                            calcWidth = gridContainer.width - colSpace - (allWidth + usedWidth)
                         }
                         else
                             allWidth += calcWidth;
@@ -774,12 +769,6 @@ Item {
         target: gridDataModel
         onHighlightRowChanged: {
             selectedRow = gridDataModel.highlightRow
-            /*
-            highlightRect.y = gridDataModel.highlightRow * dataHeight;
-            highlightRect.height = dataHeight;
-            highlightRect.width = tview.width
-            highlightRect.visible = gridDataModel.highlightRow >= 0
-            */
             setOptionIcon();
             selectionChanged();
         }

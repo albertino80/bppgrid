@@ -19,5 +19,4 @@ CompGrid {
 
     headingsTextColor: BppMetrics.headingTextColor
     headingsSortColor: BppMetrics.headingTextColor
-    headingsNoSortColor: BppMetrics.textColorDisabled
 }
