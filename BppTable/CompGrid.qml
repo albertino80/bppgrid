@@ -55,6 +55,10 @@ Item {
         return gridDataModel.rowCount();
     }
 
+    function cols(){
+        return gridDataModel.columnCount();
+    }
+
     function cellValue(row, col){
 
         var colId = 0;
@@ -689,6 +693,7 @@ Item {
             doFireColumnsChange = true;
         }
 
+        //console.log(doFireColumnsChange, columns.count, gridContainer.width, renewColumns)
         if(columns.count > 0 && gridContainer.width > 0){
             var minWidth = 0;
             var toResize = [];
@@ -762,7 +767,7 @@ Item {
             gridDataModel.endUpdateColumns( );
         }
 
-        if(currentResizeColumn >= 0)    recalcDragger();
+        if(currentResizeColumn >= 0) recalcDragger();
     }
 
     Connections {

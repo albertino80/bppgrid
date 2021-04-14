@@ -100,9 +100,9 @@ namespace bpp {
                 if(sortColumns.isEmpty()){ //no sort
                     doSort = false;
                     if(!dataIndex.isEmpty()) {
-                        emit beginResetModel();
+                        beginResetModel();
                         dataIndex.clear();
-                        emit endResetModel();
+                        endResetModel();
                     }
                 }
             }
@@ -124,7 +124,7 @@ namespace bpp {
                     sortIndexes.push_back( QPair<int,bool>(iCol - 1, orderAsc) );
                 }
 
-                emit beginResetModel();
+                beginResetModel();
                 std::sort(dataIndex.begin(), dataIndex.end(), [&](int indexA, int indexB) {
 
                     const QVector<QVariant>& recordA = dataVal[indexA];
@@ -196,7 +196,7 @@ namespace bpp {
                     return false;
                 });
 
-                emit endResetModel();
+                endResetModel();
             }
             dataChangedALS = false;
             columnsChangedALS = false;
@@ -206,7 +206,7 @@ namespace bpp {
 
     void TableModel::beginReset(bool appendMode)
     {
-        emit beginResetModel();
+        beginResetModel();
         if(!appendMode) {
             dataVal.clear();
             //dataIndex.clear();
@@ -216,7 +216,7 @@ namespace bpp {
 
     void TableModel::endReset()
     {
-        emit endResetModel();
+        endResetModel();
         sortData();
     }
 
@@ -449,7 +449,7 @@ namespace bpp {
 
     void TableModel::clearColumnsDef()
     {
-        for(auto col: columnsDef){
+        for(auto col: qAsConst(columnsDef)){
             delete col;
         }
         columnsDef.clear();
