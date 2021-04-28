@@ -14,3 +14,5 @@ BppGridText 1.0 BppGridText.qml
 BppCalendar 1.0 BppCalendar.qml
 BppTextDate 1.0 BppTextDate.qml
 BppGridFaIcon 1.0 BppGridFaIcon.qml
+BppImageArrayChooser 1.0 BppImageArrayChooser.qml
+BppTreeView 1.0 BppTreeView.qml

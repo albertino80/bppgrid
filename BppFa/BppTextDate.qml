@@ -39,7 +39,7 @@ Item {
     }
 
     function fromTextFmt(aText, aFormat){
-        if(aText.length > 0)
+        if(aText && aText.length > 0)
             dateSel = Date.fromLocaleDateString(Qt.locale(), aText, aFormat);
         else
             dateSel = null;
@@ -47,10 +47,14 @@ Item {
 
     RowLayout{
         anchors.fill: parent
+        spacing: 0
+
         Text {
             id: txtDate
             text: dateSel === null ? container.placeholderText : Qt.formatDate(dateSel, dateFormat)
-            color: dateSel === null ? BppMetrics.textColorDisabled : BppMetrics.textColor
+            color: enabled
+                   ? (dateSel === null ? BppMetrics.textColorDisabled : BppMetrics.textColor)
+                   : BppMetrics.textColorDisabled
             font.pointSize: BppMetrics.fontSizePt
             Layout.fillWidth: true
         }
@@ -70,6 +74,7 @@ Item {
             enabled: mouseSetDate.enabled
             onPressed: {
                 dateSel = null;
+                container.dateChanged();
             }
         }
     }
@@ -97,7 +102,7 @@ Item {
                 dateSel = newDate;
                 //txt.text = dateSel;
                 calendarPopup.close();
-                dateChanged();
+                container.dateChanged();
             }
         }
 

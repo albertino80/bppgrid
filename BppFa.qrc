@@ -20,5 +20,7 @@
         <file>BppFa/BppCalendar.qml</file>
         <file>BppFa/BppTextDate.qml</file>
         <file>BppFa/BppGridFaIcon.qml</file>
+        <file>BppFa/BppImageArrayChooser.qml</file>
+        <file>BppFa/BppTreeView.qml</file>
     </qresource>
 </RCC>
