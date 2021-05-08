@@ -131,6 +131,9 @@ Window {
 	* [Example](https://dev.bigno.it/bppgrid/color_grid.gif)
 	* Use some BppFa controls (BppPane, BppMsgBox, BppGrid, BppColorPickerDialog)
 	* Material theme, customizable
+* **with_json_cpp_be**:
+	* Use multiple grids on tabbed window
+	* GetData from cpp backend class
 
 ### Warnings
 With QT >= 5.15, it prints warning message ```QML Connections: Implicitly defined onFoo properties in Connections are deprecated.```, but I cannot use new sintax because I need compatibility with Qt 5.12. Consider ``` QT_LOGGING_RULES="qt.qml.connections=false"```
