@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 1.4.1 (11 May 2021)
+
+### Added New BppShadowImageButton Control 
+TODO: Write documentation and an example
+
+### Removed keyboard focus from BppTextCp buttons
+Now pressing TAB on this control does not set focus on inner buttons
+
 ## Version 1.4.0 (8 May 2021)
 
 ### Added New TreeView Control 

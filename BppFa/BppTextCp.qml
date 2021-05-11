@@ -115,6 +115,7 @@ Item {
 
         BppToolButtonFa {
             id: btnClip
+            activeFocusOnTab: false
             text: Fa.fa_clipboard
             font.family: Fa.regular
             ToolTip.text: qsTr("Copy/Paste options")
@@ -125,6 +126,7 @@ Item {
 
         BppToolButtonFa {
             text: Fa.fa_plus
+            activeFocusOnTab: false
             visible: showIncrDecr && textInput.enabled
             ToolTip.text: qsTr("Increment")
             onPressed: {
@@ -140,6 +142,7 @@ Item {
 
         BppToolButtonFa {
             text: Fa.fa_minus
+            activeFocusOnTab: false
             visible: showIncrDecr && textInput.enabled
             ToolTip.text: qsTr("Decrement")
             onPressed: {

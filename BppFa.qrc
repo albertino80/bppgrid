@@ -22,5 +22,7 @@
         <file>BppFa/BppGridFaIcon.qml</file>
         <file>BppFa/BppImageArrayChooser.qml</file>
         <file>BppFa/BppTreeView.qml</file>
+        <file>BppFa/assets/box-shadow.png</file>
+        <file>BppFa/BppShadowImageButton.qml</file>
     </qresource>
 </RCC>
