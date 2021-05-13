@@ -265,15 +265,15 @@ namespace bpp {
             }
             dataVal.shrink_to_fit();
 
-            if(query.lastError().isValid())
-            {
-                allOk = false;
-                qDebug() << "Error querying the db" << query.lastError().text();
-            }
-            query.finish();
-
             endReset();
         }
+
+        if(query.lastError().isValid())
+        {
+            allOk = false;
+            qDebug() << "Error querying the db" << query.lastError().text();
+        }
+        query.finish();
 
         return allOk;
     }
@@ -306,6 +306,48 @@ namespace bpp {
     void TableModel::setFrontRecords(const QVariantList &values)
     {
         addFrontRecords = values;
+    }
+
+    int TableModel::countFromQuery(const QString &theSqlQuery, const QList<QVariant> &parameters)
+    {
+        if(!dbRef->getDb()) {
+            qDebug() << "No database";
+            return false;
+        }
+
+        QSqlQuery query(*dbRef->getDb());
+        query.setForwardOnly(true);
+
+        if(!query.prepare(theSqlQuery)){
+            qDebug() << "Error querying the db" << query.lastError().text();
+            return 0;
+        }
+
+        if(!parameters.isEmpty()) {
+            for(auto& curParam: parameters) {
+                query.addBindValue(curParam);
+            }
+        }
+
+        int numRecords(0);
+
+        bool allOk(true);
+        if(query.exec()) {
+            if(query.next()) {
+                numRecords = query.value(0).toInt();
+            }
+        }
+        if(query.lastError().isValid())
+        {
+            allOk = false;
+            qDebug() << "Error querying the db" << query.lastError().text();
+        }
+        query.finish();
+
+        if(allOk)
+            return numRecords;
+
+        return 0;
     }
 
     void TableModel::addRecord(const QList<QVariant>& theData)
@@ -344,7 +386,7 @@ namespace bpp {
         bpp::TableColumn::registerQml();
     }
 
-    void TableModel::setDbRef(TableDatabase *value)
+    void TableModel::setDbRef(bpp::TableDatabase *value)
     {
         dbRef = value;
     }

@@ -22,6 +22,7 @@ Item {
     //property color headingsTextColor: "#313131"
     property color headingsTextColor: "black"
     property color headingsSortColor: "#000099"
+    property color disabledTextColor: "gray"
 
     property string dateFormat: "dd/MM/yyyy"
     property string dateTimeFormat: "dd/MM/yyyy HH:mm:ss"
@@ -36,9 +37,20 @@ Item {
     property string icoCancel: "qrc:/BppTable/assets/icon-delete.svg"
     property string ttCancel: qsTr("Exit")
 
+    property string fontButtonsPage: Qt.application.font.family
+    property string txtPageNext: ">"
+    property string txtPageLast: "»"
+    property string txtPagePrev: "<"
+    property string txtPageFirst: "«"
+
     property bool withMultiselection: false
     property bool withMultiselectionMobileMode: false
     property bool withOptionEvent: false
+
+    property bool withPagination: false
+    property int pageSize: 5
+    property int pageCurrent: 0
+    property int allPagesRecords: 0
 
     property var cellDelegate: null
     property int selectedRow: -1
@@ -50,6 +62,7 @@ Item {
 
     signal selectionChanged();
     signal openOptions();
+    signal fetchPageRecords();
 
     function rows(){
         return gridDataModel.rowCount();
@@ -151,6 +164,11 @@ Item {
         ensureVisible();
     }
 
+    function countFromQuery(theDb, theSql, theParameters){
+        gridDataModel.setDbRef( theDb );
+        return gridDataModel.countFromQuery(theSql, theParameters);
+    }
+
     function fillFromJson(theJson, resetList){
         if(arguments.length < 2) resetList = true;
         gridDataModel.addFromList(theJson, resetList);
@@ -224,12 +242,13 @@ Item {
                     id: colRepeater
                     model: columns //ListModel {}
                     Rectangle{
+                        id: headingCell
                         Layout.minimumWidth: model.width;
                         Layout.minimumHeight: headingsFlick.height
-                        color: index == currentResizeColumn ? headingsBkAlt : headingsBk
+                        color: model.index === currentResizeColumn ? headingsBkAlt : headingsBk
                         visible: model.visible
-                        border.width: (mouseAreaColumn.isHovered || index === currentResizeColumn) ? 1 : 0
-                        border.color: index == currentResizeColumn ? headingsBk : headingsBkAlt
+                        border.width: (mouseAreaColumn.isHovered || model.index === currentResizeColumn) ? 1 : 0
+                        border.color: model.index === currentResizeColumn ? headingsBk : headingsBkAlt
 
                         property int sortIndicator: sort;
 
@@ -255,9 +274,9 @@ Item {
                             anchors.right: parent.right
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.rightMargin: 5
-                            visible: sortIndicator !== 4 && sortIndicator !== 0 && currentResizeColumn !== index
+                            visible: headingCell.sortIndicator !== 4 && headingCell.sortIndicator !== 0 && currentResizeColumn !== model.index
 
-                            source: sortIndicator === 1 ? "qrc:/BppTable/assets/sort-up.svg" : "qrc:/BppTable/assets/sort-down.svg"
+                            source: headingCell.sortIndicator === 1 ? "qrc:/BppTable/assets/sort-up.svg" : "qrc:/BppTable/assets/sort-down.svg"
                             width: 10; height: 10
                         }
                         ColorOverlay{
@@ -348,10 +367,9 @@ Item {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.top: selectionBar.bottom
-            anchors.bottom: parent.bottom
+            anchors.bottom: statusBar.top
             anchors.leftMargin: 1
             anchors.rightMargin: 1
-            anchors.bottomMargin: 1
 
             columnWidthProvider: gridDataModel.getColWidth;
 
@@ -371,11 +389,129 @@ Item {
             }
         }
 
+        Rectangle{
+            id: statusBar
+            color: headingsBk
+            border.color: headingsLines
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            height: withPagination ? headingsHeight : 0
+            visible: withPagination
+            RowLayout{
+                anchors.fill: parent
+                anchors.leftMargin: 5
+                anchors.rightMargin: 1
+                spacing: 0
+
+                Item {
+                    Layout.fillWidth: true
+                }
+
+                Label{
+                    Layout.alignment: Qt.AlignVCenter
+                    text: qsTr("Showing rows %1 - %2 of %3")
+                        .arg( (pageSize * pageCurrent) + 1 )
+                        .arg( Math.min(allPagesRecords, pageSize * pageCurrent + pageSize) )
+                        .arg( allPagesRecords );
+                }
+
+                Rectangle {
+                    Layout.leftMargin: 20
+                    Layout.preferredWidth: 1
+                    height: headingsHeight - 2
+                    color: headingsLines
+                }
+
+                GridStatusButton{
+                    Layout.preferredWidth: headingsHeight - 2
+                    height: headingsHeight - 2
+                    color: dataBkEven
+                    //border.color: headingsLines
+                    fontSizePt: headingsFontSizePt * 1.4
+                    textColor: headingsTextColor
+                    textColorDisabled: disabledTextColor
+                    enabled: pageCurrent >= 1
+                    buttonText: txtPageFirst
+                    buttonFontFamily: fontButtonsPage
+                    onPressed: {
+                        pageCurrent = 0;
+                        fetchPageRecords();
+                    }
+                }
+                GridStatusButton{
+                    Layout.preferredWidth: headingsHeight - 2
+                    height: headingsHeight - 2
+                    color: dataBkEven
+                    //border.color: headingsLines
+                    fontSizePt: headingsFontSizePt * 1.4
+                    textColor: headingsTextColor
+                    textColorDisabled: disabledTextColor
+                    enabled: pageCurrent >= 1
+                    buttonText: txtPagePrev
+                    buttonFontFamily: fontButtonsPage
+                    onPressed: {
+                        pageCurrent--;
+                        fetchPageRecords();
+                    }
+                }
+
+                Rectangle {
+                    Layout.preferredWidth: 120
+                    height: headingsHeight
+                    color: dataBkOdd
+                    border.color: headingsLines
+                    Text {
+                        anchors.fill: parent
+                        text: qsTr("Page %1 of %2").arg(pageCurrent + 1).arg( Math.ceil(allPagesRecords / pageSize) )
+                        font.pointSize: headingsFontSizePt
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
+                        color: headingsTextColor
+                    }
+                }
+
+                GridStatusButton{
+                    Layout.preferredWidth: headingsHeight - 2
+                    height: headingsHeight - 2
+                    color: dataBkEven
+                    //border.color: headingsLines
+                    fontSizePt: headingsFontSizePt * 1.4
+                    textColor: headingsTextColor
+                    textColorDisabled: disabledTextColor
+                    enabled: pageSize * (pageCurrent + 1) < allPagesRecords
+                    buttonText: txtPageNext
+                    buttonFontFamily: fontButtonsPage
+                    onPressed: {
+                        pageCurrent++;
+                        fetchPageRecords();
+                    }
+                }
+
+                GridStatusButton{
+                    Layout.preferredWidth: headingsHeight - 2
+                    height: headingsHeight - 2
+                    color: dataBkEven
+                    //border.color: headingsLines
+                    fontSizePt: headingsFontSizePt * 1.4
+                    textColor: headingsTextColor
+                    textColorDisabled: disabledTextColor
+                    enabled: pageSize * (pageCurrent + 1) < allPagesRecords
+                    buttonText: txtPageLast
+                    buttonFontFamily: fontButtonsPage
+                    onPressed: {
+                        pageCurrent = Math.ceil(allPagesRecords / pageSize) - 1;
+                        fetchPageRecords();
+                    }
+                }
+            }
+        }
+
         MouseArea {
             enabled: clickOnNothingClearSel
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.bottom: parent.bottom
+            anchors.bottom: tview.bottom
             height: tview.height - tview.contentHeight
             z:1
             propagateComposedEvents: true
@@ -383,7 +519,6 @@ Item {
                 clearSelection();
             }
         }
-
 
         Rectangle {
             id: columnIndicator
@@ -476,7 +611,8 @@ Item {
             visible: showOptionsButton && (optionBehaviour > 0 || withOptionEvent)
             anchors.bottom: parent.bottom
             anchors.right: parent.right
-            anchors.margins: 10
+            anchors.rightMargin: 5
+            anchors.bottomMargin: withPagination ? 35 : 10
             z:3
 
             property string currentIcoOptions: icoOptions

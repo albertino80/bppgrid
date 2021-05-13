@@ -3,4 +3,5 @@ CellButton 0.1 CellButton.qml
 CellClicker 0.1 CellClicker.qml
 CellText 0.1 CellText.qml
 CellFa 0.1 CellFa.qml
+GridStatusButton 0.1 GridStatusButton.qml
 CompGrid 0.1 CompGrid.qml

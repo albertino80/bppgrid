@@ -10,59 +10,92 @@ Window {
     height: 480
     title: qsTr("Hello World")
 
-    function fillTable(){
+    function buildQuery(){
         var parameters = [];
-        var sqlQuery = "SELECT pkid,null,null,year,city,sport,gender,
+
+        var sqlData = "SELECT pkid,null,null,year,city,sport,gender,
             golds,
             silvers,
             bronzes,
             round(cast(golds as double) / (golds + silvers + bronzes) * 100.0) as p_golds,
             golds + silvers + bronzes as total
-            FROM olimpic_ita_medals"
+            FROM olimpic_ita_medals";
 
+        var sqlCount = "SELECT count(*) FROM olimpic_ita_medals"
+        var sqlLimit = "LIMIT ? OFFSET ?"
+
+        var sqlWhere = "";
         if(txtSearch.text.length>0 || cmbGender.currentIndex > 0){
-            sqlQuery += " where";
+            sqlWhere += "where";
         }
 
         if(txtSearch.text.length>0){
-            sqlQuery += " (city like '%' || ? || '%' or sport like '%' || ? || '%')";
+            sqlWhere += " (city like '%' || ? || '%' or sport like '%' || ? || '%')";
             parameters.push( txtSearch.text.toLowerCase() )
             parameters.push( txtSearch.text.toLowerCase() )
         }
 
         if(cmbGender.currentIndex > 0) {
-            if(txtSearch.text.length>0) sqlQuery += " AND"
-            sqlQuery += " gender = ?";
+            if(txtSearch.text.length>0) sqlWhere += " AND"
+            sqlWhere += " gender = ?";
             parameters.push( cmbGender.model[cmbGender.currentIndex] )
         }
 
-        sqlQuery += " order by year desc";
+        sqlData += " " + sqlWhere;
+        sqlData += " order by year desc";
+        if(bGrid.withPagination) sqlData += " " + sqlLimit;
 
+        var parametersCount = parameters.slice();
+
+        if(bGrid.withPagination) {
+            parameters.push(bGrid.pageSize); //LIMIT
+            parameters.push(bGrid.pageCurrent * bGrid.pageSize) //OFFSET
+        }
+
+        sqlCount += " " + sqlWhere;
+
+        return {
+            'dataSql': sqlData,
+            'countSql': sqlCount,
+            'dataParameters': parameters,
+            'countParameters': parametersCount
+        }
+    }
+
+    function fillTable(resetPagination){
         var startTime = new Date().getTime()
+        var qry = buildQuery();
 
-        bGrid.fillFromQuery( workDb, sqlQuery, parameters );
+        if(resetPagination) {
+            bGrid.pageCurrent = 0
+        }
 
-        console.log( new Date().getTime() - startTime + " ms" );
+        if(bGrid.withPagination) bGrid.allPagesRecords = bGrid.countFromQuery( workDb, qry.countSql, qry.countParameters);
+        bGrid.fillFromQuery( workDb, qry.dataSql, qry.dataParameters);
 
-        txtInfo.text = 'Table has: ' + bGrid.rows() + " rows"
+        console.log( new Date().getTime() - startTime + " ms - page " + bGrid.pageCurrent );
+
+        txtInfo.text = 'Loaded: ' + bGrid.rows() + " rows"
     }
 
-    function formatGender(display, dataType){
-        if(dataType === BTColumn.Str) {
-            if(display === "Men")
-                return Fa.fa_male;
-            return Fa.fa_female;
-        }
-        return "";
-    }
+    function getGender(display, dataType){
+        let icon = "";
+        let color = "";
 
-    function formatGenderColor(display, dataType){
         if(dataType === BTColumn.Str) {
-            if(display === "Men")
-                return "blue";
-            return "deeppink";
+            if(display === "Men") {
+                icon = Fa.fa_male;
+                color = "blue";
+            }
+            else {
+                icon = Fa.fa_female;
+                color = "deeppink";
+            }
         }
-        return "black";
+        return {
+            'icon': icon,
+            'color': color
+        };
     }
 
     ColumnLayout {
@@ -72,25 +105,28 @@ Window {
 
         RowLayout {
             Button {
-                property bool colVisible: true
-                text: colVisible ? "Hide City" : "Show City"
+                text: "10 Records"
                 onPressed: {
-                    bGrid.columns.get(4).visible = !bGrid.columns.get(4).visible
-                    colVisible = bGrid.columns.get(4).visible
+                    bGrid.withPagination = true
+                    bGrid.pageSize = 10
+                    fillTable(true)
                 }
             }
 
             Button {
-                text: "ID <-> PK"
+                text: "5 Records"
                 onPressed: {
-                    if( bGrid.columns.get(0).title !== "ID" ) {
-                        bGrid.columns.get(0).title = "ID"
-                        bGrid.columns.get(0).width = 40
-                    }
-                    else {
-                        bGrid.columns.get(0).title = "PK"
-                        bGrid.columns.get(0).width = 50
-                    }
+                    bGrid.withPagination = true
+                    bGrid.pageSize = 5
+                    fillTable(true)
+                }
+            }
+
+            Button {
+                text: "No pagination"
+                onPressed: {
+                    bGrid.withPagination = false
+                    fillTable(true)
                 }
             }
 
@@ -113,11 +149,12 @@ Window {
                 id: txtSearch
                 Layout.fillWidth: true
                 placeholderText: qsTr("Enter search query on city/sport column")
+                text: ""
             }
             Button{
                 text: "Fill table"
                 onPressed: {
-                    fillTable();
+                    fillTable(true);
                 }
             }
         }
@@ -128,7 +165,7 @@ Window {
             ListElement { width: 40; title: ""; sort: 4; view: Enums.CellView.CommandButton; command: Enums.Commands.DoCmd1; dataRef1: "id" }
             ListElement { width: 40; title: ""; sort: 4; view: Enums.CellView.CommandButton; command: Enums.Commands.DoCmd2; dataRef1: "id" }
             ListElement { width: 60; title: "Year"; dataType: BTColumn.Int }
-            ListElement { minWidth: 120; title: "City" }
+            ListElement { minWidth: 110; title: "City" }
             ListElement { minWidth: 120; title: "Sport" }
             ListElement { width: 40; title: ""; view: Enums.CellView.GenderCell }
             ListElement { width: 70; title: "Golds"; dataType: BTColumn.Int }
@@ -146,6 +183,8 @@ Window {
 
             dataHeight: 40
             dateFormat: "MMM yyyy"
+            //withPagination: true
+            pageSize: 5
 
             Component {
                 id: cellDelegate
@@ -154,10 +193,12 @@ Window {
                     implicitHeight: bGrid.dataHeight
                     color: bGrid.getCellBk(row, highlight)
                     visible: model.visible
+                    readonly property var curValue: display
+                    readonly property var curGender: view === Enums.CellView.GenderCell ? getGender(curValue, dataType) : {'icon': '','color': ''}
 
                     CellText {
                         visible: view === Enums.CellView.SimpleText
-                        text: bGrid.formatDisplay(display, dataType, 2)
+                        text: bGrid.formatDisplay(curValue, dataType, 2)
                         horizontalAlignment: bGrid.getAlign(dataType)
                         font.capitalization: Font.Capitalize
                     }
@@ -165,8 +206,8 @@ Window {
                     CellText {
                         visible: view === Enums.CellView.GenderCell
                         font.family: Fa.solid
-                        text: formatGender(display, dataType)
-                        color: formatGenderColor(display, dataType)
+                        text: curGender.icon
+                        color: curGender.color
                         horizontalAlignment: Text.AlignHCenter;
                         font.pointSize: 14
                     }
@@ -183,7 +224,7 @@ Window {
                         width: 60
                         from: 0
                         to: 100
-                        value: dataType === BTColumn.Int ? display : 0
+                        value: model.dataType === BTColumn.Int ? curValue : 0
 
                         background: Rectangle {
                             implicitHeight: 18
@@ -213,6 +254,10 @@ Window {
             cellDelegate: cellDelegate
 
             fromListModel: modColumns
+
+            onFetchPageRecords: {
+                fillTable(false);
+            }
         }
     }
 }

@@ -13,5 +13,6 @@
         <file>BppTable/assets/copy-solid.svg</file>
         <file>BppTable/assets/arrows-alt-h-solid.svg</file>
         <file>BppTable/assets/icon-delete.svg</file>
+        <file>BppTable/GridStatusButton.qml</file>
     </qresource>
 </RCC>

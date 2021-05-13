@@ -51,6 +51,8 @@ namespace bpp {
         Q_INVOKABLE bool addFromList(const QVariantList& values, bool resetList = true);
         Q_INVOKABLE void setFrontRecords(const QVariantList& values);
 
+        Q_INVOKABLE int countFromQuery(const QString& theSqlQuery, const QList<QVariant>& parameters);
+
         Q_INVOKABLE void setHighlightRow(int rowNum, int modifiers);
         Q_INVOKABLE int getHighlightRow() const;
         Q_INVOKABLE bool isHighlightRow(int rowNum) const;
@@ -61,7 +63,7 @@ namespace bpp {
         Q_INVOKABLE void updateLayout();
 
         static void registerQml();
-        Q_INVOKABLE void setDbRef(TableDatabase *value);
+        Q_INVOKABLE void setDbRef(bpp::TableDatabase *value);
 
         Q_INVOKABLE int getColWidth(int columnId) const;
         Q_INVOKABLE void clearColumnsDef();
