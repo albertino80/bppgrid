@@ -681,6 +681,7 @@ Item {
         if(!doFireColumnsChange) return;
 
         var i;
+        var availableSpace = tview.width;
 
         if(!gridDataModel.canHideColumns()) {
             doFireColumnsChange = false
@@ -694,7 +695,7 @@ Item {
         }
 
         //console.log(doFireColumnsChange, columns.count, gridContainer.width, renewColumns)
-        if(columns.count > 0 && gridContainer.width > 0){
+        if(columns.count > 0 && availableSpace > 0){
             var minWidth = 0;
             var toResize = [];
             var curCol = null;
@@ -721,7 +722,7 @@ Item {
                     }
                 }
 
-                var newWidth = gridContainer.width - colSpace - usedWidth;
+                var newWidth = availableSpace - colSpace - usedWidth;
                 if( newWidth < minWidth ) { //mantain minWidth
                     for(i=0; i<toResize.length; i++) {
                         curCol = columns.get( toResize[i] );
@@ -738,7 +739,7 @@ Item {
                         var calcWidth = Math.floor(curCol.minWidth * factor);
                         if(i === toResize.length - 1) {
                             //due to previous roundings, last resize column get all available space
-                            calcWidth = gridContainer.width - colSpace - (allWidth + usedWidth)
+                            calcWidth = availableSpace - colSpace - (allWidth + usedWidth)
                         }
                         else
                             allWidth += calcWidth;
