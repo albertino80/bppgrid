@@ -13,8 +13,7 @@ RowLayout {
             width: schema_img.width + 8
             height: schema_img.height + 8
             border.width: 4
-            //border.color: index == currentIndex ? BppMetrics.listItemSelEven : "transparent"
-            border.color: index == currentIndex ? BppMetrics.listItemSelEven : BppMetrics.textColorDisabled
+            border.color: model.index === currentIndex ? BppMetrics.listItemSelEven : BppMetrics.textColorDisabled
             Image {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter

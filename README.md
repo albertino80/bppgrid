@@ -1,12 +1,71 @@
+# Table of Contents
 
-# bppgrid
-QtQuick 2 Table component, modeled on TableView QML Type
+* [Introduction](#introduction)
+  * [Requirements](#requirements)
+  * [Component list](#component-list)
+  * [Code Example](#code-example)
+  * [Documentation/Wiki](#documentation-wiki)
+  * [Changelog](changelog.md)
+* [Examples](#examples)
+  * [Examples folder](examples/README.md)
+  * [Showcase](#showcase)
 
-Tested on Windows, Android 6+, may work on other plaftorms
+# Introduction
 
-Developed with Qt 5.12.3
+I started studying QML and realized that QT with QML is really well done, but I was missing some basic components. I started collecting them for myself and maybe they can be useful for someone. First I felt the need to have an easy-to-use grid component, so starting from TableView QML Type I modeled a new grid component on top of it. Then I continued adding Font Awesome icons and other usefull components.
 
-![Image of bppgrid](examples/bppgrid.png)
+`BppTable` is the grid component module
+
+`BppFa` is a module that started to use Font Awesome in QML, later several UI components were added
+
+## Requirements
+
+Tested on Windows and Linux, Android 6+, may work on other plaftorms
+
+Developed with Qt 5.12.3 (and 5.14.2)
+
+### Warnings
+QT >= 5.15 prints warning message ```QML Connections: Implicitly defined onFoo properties in Connections are deprecated.```, but this project cannot use the new syntax because it requires compatibility with Qt 5.12. Consider ``` QT_LOGGING_RULES="qt.qml.connections=false"```
+
+## Component-list
+
+List only usefull components
+
+### `BppTable` Module
+
+| Component | Description |
+| --------- | ----------- |
+| CompGrid | Grid component |
+| CellButton | Button inside a grid cell |
+| CellClicker | Handle mouse (or finger) interaction with cell |
+| CellFa | Display a Font Awesome icon |
+| CellText | Regular text cell |
+
+### `BppFa` Module:
+
+| Component | Description |
+| --------- | ----------- |
+| Fa (root context property) | Font awesome fonts and icons |
+| BppMetrics | QML Singleton with UI parameter used in all other controls (Colors, Sizes, Fonts...) |
+| BppButton | A Button with label and FA icon |
+| BppCalendar | A Calendar box to select dates |
+| BppTextDate | A text to show the date and open the calendar to change it |
+| BppColorPicker | A Color Picker Pane (RGB/HSV) |
+| BppColorPickerDialog | A popup dialog with BppColorPicker and Accept/Cancel |
+| BppGrid | CompGrid styled with BppMetrics |
+| BppGridFaIcon | FA icon with tooltip |
+| BppGridText | CellText styled with BppMetrics |
+| BppImageArrayChooser | A list images where only one can be selected, like Option Boxes with images |
+| BppMsgBox | A Dialog to show a message to the user, modal or not |
+| BppPane | A Pane styled with BppMetrics |
+| BppShadowImageButton | A Button with image/text for big buttons in home page |
+| BppStyleMaterial | Helper class for manage Material theme (Dark/Light) |
+| BppStyleUniversal | Helper class for manage Universal theme (Dark/Light) |
+| BppTextCp | A Text with some extra options and copy/paste button |
+| BppToolButtonFa | A ToolButton for toolbars with FA icon |
+| BppTreeView | Multi level TreeView component |
+
+## Code-example
 
 ### How to start a new project
 
@@ -105,44 +164,22 @@ Window {
 }
 ```
 
-### Examples folder content
+## Documentation-wiki
 
-* Component preview: [bppgrid_preview.gif](examples/bppgrid_preview.gif)
-* **simple**: very simple table, data loaded from Json
-* **simple_array**: very simple table, data loaded from Js Array of records
-* **simple_buttons**: 
-  * auto size column
-  * clickable cell
-  * custom cell content (a ProgressBar)
-* **fromDb**:
-  * ```MyDatabase``` is a SQLite example backend
-    * is a simple Class derived from ```bpp::TableDatabase```
-    * override ```bpp::TableDatabase::getDb()```: returns a QSqlDatabase used internally to fetch SQL data
-  * in this example SQLite Db is created in ```QStandardPaths::AppLocalDataLocation```
-  * fill table from a Db with SQL
-  * example Date/DateTime column
-  * example of column edit (change column text and visibility)
-* **multi_selection**:
-	* [Example](https://dev.bigno.it/bppgrid/multiselection.gif)
-	* work with multiselection
-	* multiselection mobile mode
-	* update cell content
-* **color_grid**:
-	* [Example](https://dev.bigno.it/bppgrid/color_grid.gif)
-	* Use some BppFa controls (BppPane, BppMsgBox, BppGrid, BppColorPickerDialog)
-	* Material theme, customizable
-* **with_json_cpp_be**:
-	* Use multiple grids on tabbed window
-	* GetData from cpp backend class
+IN PROGRESS
 
-### Warnings
-With QT >= 5.15, it prints warning message ```QML Connections: Implicitly defined onFoo properties in Connections are deprecated.```, but I cannot use new sintax because I need compatibility with Qt 5.12. Consider ``` QT_LOGGING_RULES="qt.qml.connections=false"```
+## Changelog
 
-### Features
-TODO: write list
+See [Changelog](changelog.md)
 
-### Todo
-- [ ] Parametrize project for avoid ```QT += sql``` if not needed
-- [ ] Test other database drivers
-- [ ] Column reordering (Study a mobile friendly interface)
-- [ ] Documentation, developer guide
+# Examples
+
+See [examples folder](examples/README.md)
+
+## Showcase
+
+![Dark Mode](https://dev.bigno.it/bppgrid/dark_grid.png)
+![Light Mode](https://dev.bigno.it/bppgrid/light_grid.png)
+![Calendar](https://dev.bigno.it/bppgrid/calendar.png)
+![Color Picker](https://dev.bigno.it/bppgrid/color_picker.png)
+![TreeView](https://dev.bigno.it/bppgrid/treeview.png)

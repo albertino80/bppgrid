@@ -122,7 +122,7 @@ ApplicationWindow {
                         color: bGrid.getCellBk(row, highlight)
 
                         BppGridText {
-                            visible: view === 0
+                            visible: model.view === 0
                             text: bGrid.formatDisplay(display, dataType, 2)
                             horizontalAlignment: bGrid.getAlign(dataType)
                         }
@@ -130,8 +130,8 @@ ApplicationWindow {
                         Rectangle{
                             anchors.fill: parent
                             anchors.margins: 3
-                            visible: view === 1
-                            color: view === 1 ? display : "#000000"
+                            visible: model.view === 1
+                            color: model.view === 1 ? display : "#000000"
                         }
 
                         CellClicker {
