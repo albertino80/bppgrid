@@ -12,7 +12,7 @@ Item {
     property string dateFormat: "dd/MM/yyyy"
     property string placeholderText: "Sel. data"
     property alias fontSize: txtDate.font.pointSize
-    property alias enabled: mouseSetDate.enabled
+    //property alias enabled: mouseSetDate.enabled
 
     signal dateChanged();
 
@@ -56,7 +56,7 @@ Item {
                    ? (dateSel === null ? BppMetrics.textColorDisabled : BppMetrics.textColor)
                    : BppMetrics.textColorDisabled
             font.pointSize: BppMetrics.fontSizePt
-            Layout.fillWidth: true
+            //Layout.fillWidth: true
         }
 
         BppToolButtonFa {
@@ -71,11 +71,15 @@ Item {
         BppToolButtonFa {
             text: Fa.fa_times
             ToolTip.text: qsTr("Cancel Date")
-            enabled: mouseSetDate.enabled
+            //enabled: mouseSetDate.enabled
             onPressed: {
                 dateSel = null;
                 container.dateChanged();
             }
+        }
+
+        Item {
+            Layout.fillWidth: true
         }
     }
 

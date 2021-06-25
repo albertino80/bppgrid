@@ -17,6 +17,14 @@ Item {
     property int incrDecrMaximun: 9999
     property int incrDecrMinimum: 0
 
+    property bool showOnlyAvailableCpliboardCommands: false
+    property bool showEditButton: false
+    property bool showSaveButton: false
+
+    signal editPressed()
+    signal editSaved()
+    signal editAborted()
+
     implicitWidth: textInput.implicitWidth + btnClip.implicitWidth + 5
     implicitHeight: Math.max(textInput.implicitHeight, btnClip.implicitHeight)
 
@@ -73,6 +81,7 @@ Item {
                 MenuItem {
                     text: qsTr("Cut")
                     enabled: textInput.enabled
+                    height: showOnlyAvailableCpliboardCommands && !enabled ? 0 : implicitHeight
                     onTriggered: {
                         textInput.selectAll()
                         textInput.cut()
@@ -82,6 +91,7 @@ Item {
                 MenuItem {
                     text: qsTr("Copy")
                     enabled: textInput.text.length > 0
+                    height: showOnlyAvailableCpliboardCommands && !enabled ? 0 : implicitHeight
                     onTriggered: {
                         textInput.selectAll()
                         textInput.copy()
@@ -91,6 +101,7 @@ Item {
                 MenuItem {
                     text: qsTr("Paste")
                     enabled: textInput.enabled
+                    height: showOnlyAvailableCpliboardCommands && !enabled ? 0 : implicitHeight
                     onTriggered: {
                         textInput.paste()
                     }
@@ -98,6 +109,7 @@ Item {
                 MenuItem {
                     text: qsTr("Clear and paste")
                     enabled: textInput.enabled
+                    height: showOnlyAvailableCpliboardCommands && !enabled ? 0 : implicitHeight
                     onTriggered: {
                         textInput.clear()
                         textInput.paste()
@@ -106,6 +118,7 @@ Item {
                 MenuItem {
                     text: qsTr("Clear")
                     enabled: textInput.enabled
+                    height: showOnlyAvailableCpliboardCommands && !enabled ? 0 : implicitHeight
                     onTriggered: {
                         textInput.clear()
                     }
@@ -118,6 +131,7 @@ Item {
             activeFocusOnTab: false
             text: Fa.fa_clipboard
             font.family: Fa.regular
+            enabled: textInput.enabled || textInput.text.length > 0
             ToolTip.text: qsTr("Copy/Paste options")
             onPressed: {
                 contextMenu.popup(btnClip);
@@ -153,6 +167,37 @@ Item {
 
                 if(incrDecrHasMinimum && parseInt(textInput.text) < incrDecrMinimum)
                     textInput.text = incrDecrMinimum;
+            }
+        }
+
+        BppToolButtonFa {
+            id: btnEdit
+            activeFocusOnTab: false
+            visible: showEditButton && !showSaveButton
+            text: Fa.fa_pen
+            ToolTip.text: qsTr("Edit")
+            onPressed: {
+                editPressed();
+            }
+        }
+        BppToolButtonFa {
+            id: btnSave
+            activeFocusOnTab: false
+            visible: showSaveButton
+            text: Fa.fa_save
+            ToolTip.text: qsTr("Salva")
+            onPressed: {
+                editSaved();
+            }
+        }
+        BppToolButtonFa {
+            id: btnAbort
+            activeFocusOnTab: false
+            visible: showSaveButton
+            text: Fa.fa_undo
+            ToolTip.text: qsTr("Annulla")
+            onPressed: {
+                editAborted();
             }
         }
     }

@@ -57,6 +57,22 @@ Dialog {
         open();
     }
 
+    function doYesNoCT(pTitle, pText, functOnYes, functOnNo) {
+        modal = true
+        closePolicy = Popup.CloseOnEscape
+
+        funzYes = functOnYes
+        funzNo = functOnNo
+
+        standardButtons = Dialog.Yes | Dialog.No
+
+        title = pTitle
+        txtContent.text = pText
+
+        gotoPos("C", "T");
+        open();
+    }
+
     function doYesNo(pTitle, pText, functOnYes, functOnNo) {
         modal = true
         closePolicy = Popup.CloseOnEscape
