@@ -17,6 +17,7 @@ Item {
     property int incrDecrMaximun: 9999
     property int incrDecrMinimum: 0
 
+    property bool showCopyPasteCommands: true
     property bool showOnlyAvailableCpliboardCommands: false
     property bool showEditButton: false
     property bool showSaveButton: false
@@ -131,6 +132,7 @@ Item {
             activeFocusOnTab: false
             text: Fa.fa_clipboard
             font.family: Fa.regular
+            visible: showCopyPasteCommands
             enabled: textInput.enabled || textInput.text.length > 0
             ToolTip.text: qsTr("Copy/Paste options")
             onPressed: {

@@ -1,4 +1,4 @@
-QT += quick
+QT += quick qml
 
 CONFIG += c++11
 
