@@ -12,6 +12,12 @@ Item {
 
     property bool showCopyPasteCommands: true
     property bool showOnlyAvailableCpliboardCommands: false
+    property bool showEditButton: false
+    property bool showSaveButton: false
+
+    signal editPressed()
+    signal editSaved()
+    signal editAborted()
 
     implicitWidth: textInput.implicitWidth + btnClip.implicitWidth + 5
     implicitHeight: Math.max(textInput.implicitHeight, btnClip.implicitHeight)
@@ -133,6 +139,37 @@ Item {
                 menuLoader.sourceComponent = clipMenu
                 menuLoader.item.popup(btnClip);
                 //contextMenu.popup(btnClip);
+            }
+        }
+
+        BppToolButtonFa {
+            id: btnEdit
+            activeFocusOnTab: false
+            visible: showEditButton && !showSaveButton
+            text: Fa.fa_pen
+            ToolTip.text: qsTr("Edit")
+            onPressed: {
+                editPressed();
+            }
+        }
+        BppToolButtonFa {
+            id: btnSave
+            activeFocusOnTab: false
+            visible: showSaveButton
+            text: Fa.fa_save
+            ToolTip.text: qsTr("Salva")
+            onPressed: {
+                editSaved();
+            }
+        }
+        BppToolButtonFa {
+            id: btnAbort
+            activeFocusOnTab: false
+            visible: showSaveButton
+            text: Fa.fa_undo
+            ToolTip.text: qsTr("Annulla")
+            onPressed: {
+                editAborted();
             }
         }
     }

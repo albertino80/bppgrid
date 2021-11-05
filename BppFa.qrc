@@ -24,5 +24,7 @@
         <file>BppFa/BppTreeView.qml</file>
         <file>BppFa/assets/box-shadow.png</file>
         <file>BppFa/BppShadowImageButton.qml</file>
+        <file>BppFa/BppTextPlusMin.qml</file>
+        <file>BppFa/BppTextCpEdit.qml</file>
     </qresource>
 </RCC>

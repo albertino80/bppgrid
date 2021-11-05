@@ -72,8 +72,11 @@ Item {
         return gridDataModel.columnCount();
     }
 
-    function cellValue(row, col){
+    function getColumnId(colName){
+        return gridDataModel.getColumnId(colName);
+    }
 
+    function cellValue(row, col){
         var colId = 0;
         if (typeof col === 'string') {
             colId = gridDataModel.getColumnId(col);

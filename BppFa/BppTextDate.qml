@@ -94,29 +94,61 @@ Item {
         padding: 0
         margins: 0
 
-        contentItem: BppCalendar {
-            id: calendarView
+//        contentItem: BppCalendar {
+//            id: calendarView
 
-            clip: true
-            //year: 2019
-            //month: (new Date()).getMonth()
-            //date: dateSel
+//            clip: true
+//            //year: 2019
+//            //month: (new Date()).getMonth()
+//            //date: dateSel
 
+//            onDateSelect: {
+//                dateSel = newDate;
+//                //txt.text = dateSel;
+//                calendarPopup.close();
+//                container.dateChanged();
+//            }
+//        }
+
+//        function askDate(theStartDate){
+//            if(theStartDate === null)
+//                calendarView.date = new Date()
+//            else
+//                calendarView.date = theStartDate
+//            calendarView.resetBindings();
+//            calendarPopup.open();
+//        }
+
+        function askDate(theStartDate){
+            loaderCalendar.sourceComponent = calendarComp
+            if(theStartDate === null)
+                loaderCalendar.item.date = new Date()
+            else
+                loaderCalendar.item.date = theStartDate
+            loaderCalendar.item.resetBindings();
+            calendarPopup.open();
+        }
+
+        Component {
+            id: calendarComp
+            BppCalendar {
+                clip: true
+            }
+        }
+
+        Loader {
+            id: loaderCalendar
+            anchors.fill: parent
+        }
+
+        Connections {
+            target: loaderCalendar.item
             onDateSelect: {
                 dateSel = newDate;
                 //txt.text = dateSel;
                 calendarPopup.close();
                 container.dateChanged();
             }
-        }
-
-        function askDate(theStartDate){
-            if(theStartDate === null)
-                calendarView.date = new Date()
-            else
-                calendarView.date = theStartDate
-            calendarView.resetBindings();
-            calendarPopup.open();
         }
     }
 }
