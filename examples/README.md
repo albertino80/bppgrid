@@ -7,6 +7,7 @@
 * [multi_selection](#multi_selection)
 * [color_grid](#color_grid)
 * [with_json_cpp_be](#with_json_cpp_be)
+* [pickdate](#pickdate)
 
 # simple
 
@@ -67,3 +68,7 @@ A  table with
 
 * Use multiple grids on tabbed window
 * GetData from cpp backend class
+
+# pickdate
+
+* Use of BppTextDate for date picking
