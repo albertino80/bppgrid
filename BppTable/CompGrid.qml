@@ -29,6 +29,7 @@ Item {
 
     property bool showOptionsButton: true
     property bool clickOnNothingClearSel: true
+    property bool showHeadingColumns: true
 
     property string icoCopy: "qrc:/BppTable/assets/copy-solid.svg"
     property string ttCopy: qsTr("Copy current row")
@@ -228,10 +229,11 @@ Item {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.top: parent.top
-            height: headingsHeight
+            height: showHeadingColumns ? headingsHeight : 0
             anchors.leftMargin: 1
             anchors.rightMargin: 1
             topMargin: 1
+            visible: showHeadingColumns
 
             contentWidth: tview.contentWidth
             boundsBehavior: Flickable.StopAtBounds
