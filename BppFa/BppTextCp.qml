@@ -53,6 +53,13 @@ Item {
         }
     }
 
+    function setText(aTxtOrNull){
+        if(aTxtOrNull)
+            textInput.text = aTxtOrNull
+        else
+            textInput.text = ""
+    }
+
     Component {
         id: clipMenu
         Menu {
