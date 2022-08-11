@@ -178,8 +178,8 @@ See [examples folder](examples/README.md)
 
 ## Showcase
 
-![Dark Mode](https://dev.bigno.it/bppgrid/dark_grid.png)
-![Light Mode](https://dev.bigno.it/bppgrid/light_grid.png)
-![Calendar](https://dev.bigno.it/bppgrid/calendar.png)
-![Color Picker](https://dev.bigno.it/bppgrid/color_picker.png)
-![TreeView](https://dev.bigno.it/bppgrid/treeview.png)
+![Dark Mode](examples/images/dark_grid.png)
+![Light Mode](examples/images/light_grid.png)
+![Calendar](examples/images/calendar.png)
+![Color Picker](examples/images/color_picker.png)
+![TreeView](examples/images/treeview.png)
