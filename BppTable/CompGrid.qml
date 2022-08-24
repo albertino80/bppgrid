@@ -106,6 +106,28 @@ Item {
         }
     }
 
+    function selectByValue(columnRole, columnValue) {
+        var colId = gridDataModel.getColumnId(columnRole);
+        if(colId < 0){
+            console.log("WARNING bpp::grid selectByValue(%1,...) Column not found".arg(columnRole));
+            return false;
+        }
+
+        let toSel = -1;
+        for(let iRow=0; iRow<gridDataModel.rowCount(); iRow++){
+            if(gridDataModel.data( gridDataModel.index(iRow, colId), "display" ) === columnValue) {
+                toSel = iRow;
+                break;
+            }
+        }
+
+        if(toSel >= 0) {
+            setSelectedRow(toSel, 0);
+            return true;
+        }
+        return false;
+    }
+
     function setSelectedRow(row, modifiers) {
         if(arguments.length < 2) //no argument [modifiers] provided
             modifiers = 0;
