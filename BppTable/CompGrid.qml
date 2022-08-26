@@ -210,6 +210,10 @@ Item {
         ensureVisible();
     }
 
+    function computeLayout(){
+        tview.forceLayout();
+    }
+
     function formatDisplay(display, dataType, decimals){
         if( dataType === BTColumn.Str )
             return display;
@@ -405,9 +409,16 @@ Item {
 
             delegate: cellDelegate
 
-            ScrollBar.horizontal: ScrollBar { orientation: Qt.Horizontal }
+            ScrollBar.horizontal: ScrollBar {
+                visible: (tview.contentWidth > tview.width + 2)
+                orientation: Qt.Horizontal
+                policy: ScrollBar.AsNeeded
+            }
             ScrollBar.vertical: ScrollBar {
+                visible: (tview.contentHeight > tview.height + 2)
+                orientation: Qt.Vertical
                 id: verticalScrollbar
+                policy: ScrollBar.AsNeeded
             }
 
             onContentXChanged: {
@@ -712,6 +723,12 @@ Item {
             columnSorter.visible = false
         }
         else {
+            if(currentResizeColumn === columns.count - 1){
+                if(tview.contentWidth > tview.width) {
+                    tview.contentX = tview.contentWidth - tview.width
+                }
+            }
+
             var curCol = null;
             var newPos = 0;
             var newLimit = 0
@@ -839,12 +856,27 @@ Item {
     }
 
     property bool doFireColumnsChange: true
+    function setGridContentWidth(){
+        let usedWidth = 0;
+        let numVisible = 0;
+        for(let i=0; i<columns.count; i++){
+            let curCol = columns.get(i);
+            if(curCol.visible) {
+                numVisible++;
+                usedWidth += columns.get(i).width;
+            }
+        }
+        let colSpace = numVisible - 1;
+        tview.contentWidth = usedWidth + colSpace;
+    }
+
     function fromColumnListModelToTable(renewColumns){
         if(!columns) return;
         if(!doFireColumnsChange) return;
 
         var i;
         var availableSpace = tview.width;
+        //tview.contentX = 0
 
         if(!gridDataModel.canHideColumns()) {
             doFireColumnsChange = false
@@ -874,17 +906,18 @@ Item {
             if(toResize.length > 0) {
                 doFireColumnsChange = false;
 
-                var colSpace = 0;
+                let numVisible = 0;
                 var usedWidth = 0;
                 for(i=0; i<columns.count; i++){
                     curCol = columns.get(i);
                     if(curCol.visible) {
-                        if(i < columns.count -1) colSpace++;
+                        numVisible++;
                         if(!curCol.minWidth)
                             usedWidth += columns.get(i).width;
                     }
                 }
 
+                let colSpace = numVisible - 1;
                 var newWidth = availableSpace - colSpace - usedWidth;
                 if( newWidth < minWidth ) { //mantain minWidth
                     for(i=0; i<toResize.length; i++) {
@@ -911,10 +944,11 @@ Item {
                             curCol.width = calcWidth;
                     }
                 }
-
                 doFireColumnsChange = true;
             }
         }
+
+        setGridContentWidth()
 
         if(renewColumns) {
             gridDataModel.clearColumnsDef();

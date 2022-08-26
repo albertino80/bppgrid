@@ -14,7 +14,7 @@ MouseArea {
     onClicked: {
         if(grid){
             if(linkEnabled) {
-                if(grid.selectedRow != row) grid.setSelectedRow(row, mouse.modifiers);
+                if(grid.selectedRow !== row) grid.setSelectedRow(row, mouse.modifiers);
                 doCommand()
             }
             else
