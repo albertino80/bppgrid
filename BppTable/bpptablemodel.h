@@ -78,6 +78,7 @@ namespace bpp {
 
         Q_INVOKABLE bool copyRowToClipboard(int row) const;
         Q_INVOKABLE QString getRowString(int row) const;
+        Q_INVOKABLE QVariantMap getRowObject(int row) const;
 
         Q_INVOKABLE bool setCellValue(int rowNum, int columnNum, const QVariant& data);
 

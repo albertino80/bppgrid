@@ -359,15 +359,15 @@ namespace bpp {
         QVector<QVariant>& curRow = dataVal.last();
         int iCol=0;
         for(auto& theValue: theData){
-            if(getColumnDef( iCol ).reference1 < 0)
+            //if(getColumnDef( iCol ).reference1 < 0)
                 appendDataVariant(curRow, theValue, getColumnDef( iCol ).type, DataDialect::JsonISO);
-            else
-                appendDataVariant(curRow, emptyVInt, getColumnDef( iCol ).type, DataDialect::JsonISO);
+//            else
+//                appendDataVariant(curRow, emptyVInt, getColumnDef( iCol ).type, DataDialect::JsonISO);
             iCol++;
         }
 
         while(iCol < numColumns) {
-            appendDataVariant(curRow, QVariant(QVariant::Int), getColumnDef( iCol ).type, DataDialect::JsonISO);
+            appendDataVariant(curRow, emptyVInt, getColumnDef( iCol ).type, DataDialect::JsonISO);
             iCol++;
         }
     }
@@ -450,6 +450,17 @@ namespace bpp {
         }
         toRet.append("}");
 
+        return toRet;
+    }
+
+    QVariantMap TableModel::getRowObject(int row) const
+    {
+        QVariantMap toRet;
+        int iCol = 0;
+        for(auto col: columnsDef){
+            toRet[col->role] = getDataDisplayRole( QModelIndex( index(row, iCol) ) );
+            iCol++;
+        }
         return toRet;
     }
 

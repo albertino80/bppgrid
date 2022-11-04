@@ -145,6 +145,9 @@ Item {
     function getSelectedRows(){
         return gridDataModel.getHighlightRows();
     }
+    function getRowObject(row){
+        return gridDataModel.getRowObject(row);
+    }
 
     function getCellBackground(row) {
         console.log('Warning deprecated function, use getCellBk(row, highlight)')
