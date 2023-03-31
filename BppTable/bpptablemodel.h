@@ -54,6 +54,7 @@ namespace bpp {
         Q_INVOKABLE int countFromQuery(const QString& theSqlQuery, const QList<QVariant>& parameters);
 
         Q_INVOKABLE void setHighlightRow(int rowNum, int modifiers);
+        Q_INVOKABLE void setHighlightRows(bool emptySel, const QVector<int>& rowsIdx);
         Q_INVOKABLE int getHighlightRow() const;
         Q_INVOKABLE bool isHighlightRow(int rowNum) const;
         Q_INVOKABLE int countHighlightRows() const;

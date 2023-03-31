@@ -133,6 +133,9 @@ Item {
             modifiers = 0;
         gridDataModel.setHighlightRow(row, modifiers);
     }
+    function setSelectedRows(doEmpty, rows) {
+        gridDataModel.setHighlightRows(doEmpty, rows);
+    }
     function clearSelection(){
         gridDataModel.setHighlightRow(-1, 0);
     }

@@ -806,4 +806,43 @@ namespace bpp {
         }
     }
 
+    void TableModel::setHighlightRows(bool emptySel, const QVector<int> &rowsIdx)
+    {
+        bool fireRowChanged(false);
+        int minRow(-1), maxRow(-1);
+
+        if(emptySel){
+            if(!highlightRows.empty()) {
+                //clear selection
+                minRow = *highlightRows.begin();
+                maxRow = *highlightRows.rbegin();
+                highlightRows.clear();
+                highlightRow = -1;
+                lastHighlightRow = -1;
+                fireRowChanged = true;
+            }
+        }
+        if(!rowsIdx.isEmpty()) {
+            for(int irow=0; irow<rowsIdx.size(); irow++){
+                highlightRows.insert(rowsIdx[irow]);
+            }
+            fireRowChanged = true;
+            highlightRow = rowsIdx[rowsIdx.size()-1];
+            lastHighlightRow = highlightRow;
+            if(!highlightRows.empty()) {
+                if(minRow < 0 || *highlightRows.begin() < minRow)
+                    minRow = *highlightRows.begin();
+                if(maxRow < 0 || *highlightRows.rbegin() > maxRow)
+                    maxRow = *highlightRows.rbegin();
+            }
+        }
+
+        if(fireRowChanged) {
+            emit highlightRowChanged();
+            if(minRow != -1) {
+                //qDebug() << rowNum << minRow << maxRow;
+                emit dataChanged(QModelIndex(index(minRow, 0)), QModelIndex(index(maxRow, columnsDef.size() - 1)), onlyHighlightRole);
+            }
+        }
+    }
 }

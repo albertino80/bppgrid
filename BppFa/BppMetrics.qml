@@ -12,6 +12,7 @@ Item {
     property int fontSizeCommandIcons: Qt.application.font.pointSize * 1.3
 
     property int toolbarHeight: 48
+    property int menuHeight: 40
     property int cellDataHeight: 30
     property int cellDataFontSizePt: Qt.application.font.pointSize;
     property int cellHeadingsHeight: 30
@@ -33,6 +34,11 @@ Item {
     property color listItemEven: "#FFFFFF"
     property color listItemSelOdd: "#40ffa8"
     property color listItemSelEven: "#3df5a1"
+
+    property color colorErrorOdd: "#DB5757"
+    property color colorErrorEven: "#FF5959"
+    property color colorOkOdd: "#3AA53A"
+    property color colorOkEven: "#47CC47"
 
     property font appFont: Qt.application.font
 }
