@@ -9,7 +9,7 @@ Item {
     property alias horizontalAlignment: textInput.horizontalAlignment
     property alias inputMethodHints: textInput.inputMethodHints
     property alias echoMode: textInput.echoMode
-    property int incrDecrAmount: 1
+    property double incrDecrAmount: 1
 
     property bool incrDecrHasMaximun: false
     property bool incrDecrHasMinimum: false
@@ -76,11 +76,12 @@ Item {
             visible: textInput.enabled
             ToolTip.text: qsTr("Increment")
             onPressed: {
-                if(isNaN(parseInt(textInput.text)))
+                var theVal = textInput.text.trim().replace(",", ".");
+                if(isNaN(parseFloat(theVal)))
                     textInput.text = incrDecrMinimum;
                 else {
-                    textInput.text = parseInt(textInput.text) + incrDecrAmount;
-                    if(incrDecrHasMaximun && parseInt(textInput.text) > incrDecrMaximun)
+                    textInput.text = parseFloat(theVal) + incrDecrAmount;
+                    if(incrDecrHasMaximun && parseFloat(textInput.text) > incrDecrMaximun)
                         textInput.text = incrDecrMaximun;
                 }
             }
@@ -92,11 +93,12 @@ Item {
             visible: textInput.enabled
             ToolTip.text: qsTr("Decrement")
             onPressed: {
-                if(isNaN(parseInt(textInput.text)))
+                var theVal = textInput.text.trim().replace(",", ".");
+                if(isNaN(parseFloat(theVal)))
                     textInput.text = incrDecrMinimum;
                 else {
-                    textInput.text = parseInt(textInput.text) - incrDecrAmount;
-                    if(incrDecrHasMinimum && parseInt(textInput.text) < incrDecrMinimum)
+                    textInput.text = parseFloat(theVal) - incrDecrAmount;
+                    if(incrDecrHasMinimum && parseFloat(textInput.text) < incrDecrMinimum)
                         textInput.text = incrDecrMinimum;
                 }
             }

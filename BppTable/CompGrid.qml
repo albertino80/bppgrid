@@ -132,6 +132,13 @@ Item {
         if(arguments.length < 2) //no argument [modifiers] provided
             modifiers = 0;
         gridDataModel.setHighlightRow(row, modifiers);
+
+        if(tview.contentY >= row * dataHeight) {
+            if(row === 0)
+                tview.contentY = 0
+            else
+                tview.contentY = row - 1 * dataHeight
+        }
     }
     function setSelectedRows(doEmpty, rows) {
         gridDataModel.setHighlightRows(doEmpty, rows);
