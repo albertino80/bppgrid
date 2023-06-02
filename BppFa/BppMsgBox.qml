@@ -11,6 +11,7 @@ Dialog {
 
     property var funzYes: null
     property var funzNo: null
+    property var funzApply: null
 
     standardButtons: Dialog.NoButton
     modal: false
@@ -30,9 +31,18 @@ Dialog {
         else
             exitWithNo();
     }
+    onApplied: {
+        close()
+        if(funzApply && typeof funzApply === "function") {
+            funzApply();
+        }
+        else
+            exitWithApply();
+    }
 
     signal exitWithYes();
     signal exitWithNo();
+    signal exitWithApply();
 
     function doMessageM(pTitle, pText) {
         doMessageInt(pTitle, pText, true)
@@ -49,9 +59,26 @@ Dialog {
 
         funzYes = null
         funzNo = null
+        funzApply = null
 
         title = pTitle
         txtContent.text = pText
+
+        gotoPos("C", "C");
+        open();
+    }
+
+    function doMessageModal(pTitle, pTextm, functOnApply) {
+        modal = true
+        closePolicy = Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        standardButtons = Dialog.Apply
+
+        funzYes = null
+        funzNo = null
+        funzApply = functOnApply
+
+        title = pTitle
+        txtContent.text = pTextm
 
         gotoPos("C", "C");
         open();
@@ -63,6 +90,7 @@ Dialog {
 
         funzYes = functOnYes
         funzNo = functOnNo
+        funzApply = null
 
         standardButtons = Dialog.Yes | Dialog.No
 
@@ -79,6 +107,7 @@ Dialog {
 
         funzYes = functOnYes
         funzNo = functOnNo
+        funzApply = null
 
         standardButtons = Dialog.Yes | Dialog.No
 

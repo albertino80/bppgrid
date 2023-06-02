@@ -28,6 +28,12 @@ Item {
         return null;
     }
 
+    function valueOrNullLc(){
+        if(textInput.text.trim().length > 0)
+            return textInput.text.trim().toLocaleLowerCase();
+        return null;
+    }
+
     function toInt(){
         if(textInput.text.length > 0)
             return parseInt(textInput.text);
