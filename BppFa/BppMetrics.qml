@@ -39,6 +39,8 @@ Item {
     property color colorErrorEven: "#FF5959"
     property color colorOkOdd: "#3AA53A"
     property color colorOkEven: "#47CC47"
+    property color colorWarnOdd: "#DDDD00"
+    property color colorWarnEven: "#FFFF00"
 
     property font appFont: Qt.application.font
 }
