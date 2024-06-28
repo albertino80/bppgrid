@@ -18,6 +18,7 @@ Dialog {
     //padding: 5
 
     onAccepted: {
+        close()
         if(funzYes && typeof funzYes === "function") {
             funzYes();
         }
@@ -25,6 +26,7 @@ Dialog {
             exitWithYes();
     }
     onRejected: {
+        close()
         if(funzNo && typeof funzNo === "function") {
             funzNo();
         }

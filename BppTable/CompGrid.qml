@@ -59,6 +59,8 @@ Item {
     property var fromListModel: null
     property var fromArray: null
 
+    property var selectedValueCache: null
+
     property ListModel columns: ListModel{}
 
     signal selectionChanged();
@@ -82,7 +84,7 @@ Item {
         if (typeof col === 'string') {
             colId = gridDataModel.getColumnId(col);
             if(colId < 0) {
-                console.log("WARNING bpp::grid setCellValue(%1,%2,%3) Column not found".arg(row).arg(col).arg(newCellVal));
+                console.log("WARNING bpp::grid setCellValue(%1,%2,%3) Column not found".arg(row).arg(col));
                 return 0;
             }
         }
@@ -146,6 +148,23 @@ Item {
     function clearSelection(){
         gridDataModel.setHighlightRow(-1, 0);
     }
+
+    function selectionPushValue(columnRole){
+        selectedValueCache = null
+        if(selectedRow>=0)
+            selectedValueCache = cellValue(selectedRow, columnRole);
+    }
+
+    function selectionPopValue(columnRole, gotoFirstIfNotFound){
+        if(rows() > 0) {
+            let selectionDone = false
+            if(selectedValueCache != null)
+                selectionDone = selectByValue(columnRole, selectedValueCache)
+            if(!selectionDone && gotoFirstIfNotFound)
+                setSelectedRow(0);
+        }
+    }
+
     function selectAll(){
         gridDataModel.setHighlightRow(-2, 0);
     }
