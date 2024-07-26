@@ -84,7 +84,7 @@ Item {
         if (typeof col === 'string') {
             colId = gridDataModel.getColumnId(col);
             if(colId < 0) {
-                console.log("WARNING bpp::grid setCellValue(%1,%2,%3) Column not found".arg(row).arg(col));
+                console.log("WARNING bpp::grid setCellValue(%1,%2) Column not found".arg(row).arg(col));
                 return 0;
             }
         }
