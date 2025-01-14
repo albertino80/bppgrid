@@ -1,9 +1,9 @@
 import QtQuick 2.12
 import BppTable 0.1
 
-
 CompGrid {
     dataHeight: BppMetrics.cellDataHeight
+    frontHeight: BppMetrics.cellDataHeight
     headingsHeight: BppMetrics.cellHeadingsHeight
     headingsFontSizePt: BppMetrics.cellHeadingsFontSizePt
 

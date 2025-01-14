@@ -308,6 +308,11 @@ namespace bpp {
         addFrontRecords = values;
     }
 
+    int TableModel::countFrontRecords()
+    {
+        return addFrontRecords.size();
+    }
+
     int TableModel::countFromQuery(const QString &theSqlQuery, const QList<QVariant> &parameters)
     {
         if(!dbRef->getDb()) {

@@ -50,6 +50,7 @@ namespace bpp {
         Q_INVOKABLE bool addFromQuery(const QString& theSqlQuery, const QList<QVariant>& parameters);
         Q_INVOKABLE bool addFromList(const QVariantList& values, bool resetList = true);
         Q_INVOKABLE void setFrontRecords(const QVariantList& values);
+        Q_INVOKABLE int countFrontRecords();
 
         Q_INVOKABLE int countFromQuery(const QString& theSqlQuery, const QList<QVariant>& parameters);
 

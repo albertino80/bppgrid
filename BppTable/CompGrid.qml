@@ -1,12 +1,13 @@
 import QtQuick 2.12
 import QtQuick.Layouts 1.12
 import QtGraphicalEffects 1.12
-import QtQuick.Controls 2.12
+import QtQuick.Controls 2.14
 import BppTable 0.1
 
 Item {
     id: mainItem
     property int dataHeight: 30
+    property int frontHeight: 30
     property color dataHighlight: "darkturquoise"
     property color dataBkOdd: "#FFFFFF"     //data background odd row
     property color dataBkEven: "#F6F8FA"    //data background even row
@@ -135,12 +136,7 @@ Item {
             modifiers = 0;
         gridDataModel.setHighlightRow(row, modifiers);
 
-        if(tview.contentY >= row * dataHeight) {
-            if(row === 0)
-                tview.contentY = 0
-            else
-                tview.contentY = row - 1 * dataHeight
-        }
+        ensureVisibleRow(row)
     }
     function setSelectedRows(doEmpty, rows) {
         gridDataModel.setHighlightRows(doEmpty, rows);
@@ -185,12 +181,14 @@ Item {
 
     function getCellBk(row, isHilighted) {
         if(isHilighted){
-            if(row % 2 == 0)    return dataBkSelOdd;
-            return dataBkSelEven;
+            if(row % 2 == 0) return dataBkSelOdd;
+            return dataBkSelEven
         }
 
-        if(row % 2 == 0)    return dataBkOdd;
-        return dataBkEven;
+        if(row < gridDataModel.countFrontRecords()) return headingsLines
+
+        if(row % 2 == 0) return dataBkOdd
+        return dataBkEven
     }
 
     function clearData(){
@@ -736,9 +734,39 @@ Item {
         columnsFromArray(fromArray);
     }
 
+    function measureRowsHeigth(){
+        let numTop = gridDataModel.countFrontRecords()
+        let numRows = gridDataModel.rowCount() - numTop
+        return numTop * frontHeight + numRows * dataHeight
+    }
+
     function ensureVisible(){
-        if(tview.contentY >= gridDataModel.rowCount() * dataHeight)
+        if(tview.contentY >= measureRowsHeigth())
             tview.contentY = 0;
+    }
+
+    function ensureVisibleRow(aRow){
+        let totFront = gridDataModel.countFrontRecords()
+        let countFront = 0 //how many front records?
+        let countData = aRow + 1 //how many data cells?
+
+        if(totFront > 0){
+            if(aRow >= totFront)
+                countFront = totFront
+            else
+                countFront = aRow + 1
+            countData -= countFront
+        }
+
+        let rowYMax = countFront * frontHeight + countData * dataHeight
+        let rowYMin = rowYMax - dataHeight
+        if(aRow < totFront) rowYMin = rowYMax - frontHeight
+
+        if(tview.contentY >= rowYMax)
+            tview.contentY = rowYMin
+        if(tview.contentY + tview.height <= rowYMin) {
+            tview.contentY = rowYMax - tview.height
+        }
     }
 
     property int currentResizeColumn: -1

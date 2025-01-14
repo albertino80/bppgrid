@@ -5,6 +5,7 @@ import BppTable 0.1
 MouseArea {
     property CompGrid grid: null
     property bool linkEnabled: false
+    property bool selEnabled: true
 
     signal doCommand();
 
@@ -14,11 +15,14 @@ MouseArea {
     onClicked: {
         if(grid){
             if(linkEnabled) {
-                if(grid.selectedRow !== row) grid.setSelectedRow(row, mouse.modifiers);
+                if(grid.selectedRow !== row)
+                    grid.setSelectedRow(row, mouse.modifiers);
                 doCommand()
             }
-            else
-                grid.setSelectedRow(row, mouse.modifiers);
+            else {
+                if(selEnabled)
+                    grid.setSelectedRow(row, mouse.modifiers);
+            }
         }
     }
 }
