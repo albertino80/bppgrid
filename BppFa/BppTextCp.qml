@@ -16,6 +16,8 @@ Item {
     implicitWidth: textInput.implicitWidth + btnClip.implicitWidth + 5
     implicitHeight: Math.max(textInput.implicitHeight, btnClip.implicitHeight)
 
+    signal focusLost()
+
     function valueOrNull(){
         if(textInput.text.trim().length > 0)
             return textInput.text.trim();
@@ -37,6 +39,14 @@ Item {
     function toInt(){
         if(textInput.text.length > 0)
             return parseInt(textInput.text);
+        return 0;
+    }
+
+    function toDouble(){
+        if(textInput.text.length > 0){
+            var theVal = textInput.text.trim().replace(",", ".")
+            return parseFloat(theVal)
+        }
         return 0;
     }
 
@@ -128,6 +138,9 @@ Item {
             Layout.fillWidth: true
             selectByMouse: true
             color: enabled ? BppMetrics.textColor : BppMetrics.textColorDisabled
+            onActiveFocusChanged: {
+                if(!activeFocus) focusLost()
+            }
         }
 
         Loader {
