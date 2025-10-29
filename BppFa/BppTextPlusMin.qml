@@ -75,6 +75,7 @@ Item {
             activeFocusOnTab: false
             visible: textInput.enabled
             ToolTip.text: qsTr("Increment")
+            Layout.preferredWidth: 40
             onPressed: {
                 var theVal = textInput.text.trim().replace(",", ".");
                 if(isNaN(parseFloat(theVal)))
@@ -92,6 +93,7 @@ Item {
             activeFocusOnTab: false
             visible: textInput.enabled
             ToolTip.text: qsTr("Decrement")
+            Layout.preferredWidth: 40
             onPressed: {
                 var theVal = textInput.text.trim().replace(",", ".");
                 if(isNaN(parseFloat(theVal)))
